@@ -1,33 +1,23 @@
 # Eco Runner 🎮🌱
 
-Eco Runner é um jogo educativo desenvolvido em **Python (Pygame)** com
-integração ao banco de dados **PostgreSQL**.
-O projeto busca unir **entretenimento** e **conscientização ambiental**,
-incentivando práticas de coleta seletiva, reciclagem e combate à
-poluição --- alinhado aos Objetivos de Desenvolvimento Sustentável
-(ODS).
+Eco Runner é um jogo educativo desenvolvido em Python (Pygame) com integração ao banco de dados PostgreSQL. O projeto combina entretenimento, tecnologia e conscientização ambiental, promovendo a coleta seletiva, reciclagem e combate à poluição.
+O jogo está alinhado aos Objetivos de Desenvolvimento Sustentável (ODS), em especial:
 
-------------------------------------------------------------------------
+- ODS 12 – Consumo e Produção Responsáveis
+- ODS 13 – Ação Contra a Mudança Global do Clima
 
 ## 📌 Definição do Projeto
 
-O **Eco Runner** é um jogo de plataforma 2D no qual o jogador assume o
-papel de uma guardiã ambiental que luta contra o terrível monstro da
-poluição, **Yluh**.
-O jogo é dividido em três fases principais:
+A narrativa apresenta Yluh, o Monstro da Poluição, que ameaça encobrir as cidades com fumaça e destruição. Para enfrentá-lo, surge uma guardiã ambiental, cuja missão é coletar, separar e transformar resíduos em armas contra o inimigo.
 
--   **Fase 1 -- A Coleta:** coletar 20 materiais recicláveis espalhados
-    pelo cenário, desviando de obstáculos tóxicos.
--   **Fase 2 -- A Separação:** classificar corretamente os itens
-    coletados nas lixeiras correspondentes (azul, vermelha, verde e
-    amarela).
--   **Fase 3 -- O Desafio Final:** enfrentar Yluh usando uma arma
-    construída a partir dos materiais reciclados.
+A jogabilidade está dividida em três fases principais:
 
-Além de ser divertido, o jogo tem como objetivo educar os jogadores
-sobre consumo consciente e preservação ambiental.
+- **Fase 1** - A Coleta: em estilo plataforma 2D, o jogador deve coletar 20 materiais recicláveis, desviando de obstáculos como fumaça tóxica e lixo radioativo.
+- **Fase 2** – A Separação: o jogador deve classificar corretamente os itens coletados nas lixeiras de coleta seletiva (azul, vermelha, verde e amarela). O sistema impede erros, mantendo o item na tela até que seja feita a escolha correta. Ao concluir, o jogador recebe a arma reciclada e suas vidas são restauradas.
+- **Fase 3** – O Desafio Final: a protagonista utiliza a arma reciclada para enfrentar Yluh em uma batalha decisiva, reduzindo sua vida até a vitória.
 
-------------------------------------------------------------------------
+O Eco Runner proporciona diversão e aprendizado, transmitindo valores de responsabilidade ambiental e incentivando a reflexão sobre os impactos da poluição nas cidades.
+
 
 ## 📂 Estrutura do Projeto
 
@@ -35,7 +25,7 @@ Este repositório será desenvolvido ao longo de três unidades.
 Na **Unidade 1**, entregamos:
 
 -   ✅ Definição do projeto
--   ✅ Lista inicial de requisitos funcionais e não funcionais
+-   ✅ Requisitos funcionais e não funcionais
 -   ✅ Diagramas de classes e casos de uso
 -   ✅ Plano de testes
 -   ✅ Plano de especificação formal
@@ -43,57 +33,91 @@ Na **Unidade 1**, entregamos:
 O desenvolvimento do código (mecânicas do jogo, banco de dados e
 integração) será realizado nas próximas unidades.
 
-------------------------------------------------------------------------
 
-## 🛠 Tecnologias Utilizadas
+## 🛠 Tecnologias e Ferramentas Utilizadas
 
 -   **Linguagem:** Python
--   **Biblioteca de Jogo:** [Pygame](https://www.pygame.org/)
--   **Banco de Dados:** PostgreSQL
--   **Persistência de Dados:** progresso do jogador, pontuação, vidas e
-    itens salvos no banco
+-   **Biblioteca de Jogo:** Pygame
+-   **Banco de Dados:** PostgreSQL 
 
-------------------------------------------------------------------------
-
-## 📋 Requisitos (Unidade 1)
+## 📋 Requisitos
 
 ### Requisitos Funcionais
 
--   **RF01:** Sistema de login e autenticação
--   **RF02:** Coleta de materiais recicláveis na Fase 1
--   **RF03:** Separação correta de itens na Fase 2
--   **RF04:** Combate final contra Yluh
--   **RF05:** Sistema de pausa e salvamento de progresso
+-   **RF01:** Login de Usuário
+-   **RF02:** Cadastro de Jogador
+-   **RF03:** Coleta de materiais recicláveis na Fase 1
+-   **RF04:** Classificação correta de itens recicláveis na Fase 2
+-   **RF05:** Combate contra Yluh na Fase 3
+-   **RF06:** Gerenciar jogo (pausa, salvamento e carregamento de progresso)
+
 
 ### Requisitos Não Funcionais
 
--   **RNF01:** Resposta às ações do jogador em até 200ms
--   **RNF02:** Interface amigável e intuitiva
--   **RNF03:** Compatibilidade com Windows e Linux
--   **RNF04:** Garantia de integridade dos dados no banco
+-   **RNF01:** Tempo de resposta ≤ 200ms
+-   **RNF02:** Consistência e Legibilidade da Interface
+-   **RNF03:** Compatibilidade com Windows (10/11) e Linux (Ubuntu 22.04 LTS)
+-   **RNF04:** Garantia de integridade e resiliência dos dados salvos
 
-------------------------------------------------------------------------
 
 ## 📊 Plano de Testes
 
-Foram definidos casos de teste para:
+Os testes planejados para a primeira entrega incluem:
 
--   Validação de login e autenticação
--   Coleta correta dos 20 itens na Fase 1
--   Bloqueio de itens em lixeiras erradas na Fase 2
--   Salvamento e carregamento de progresso
--   Verificação de desempenho (tempo de resposta)
+- **Teste Funcional:** login, coleta, classificação de itens, bloqueio de itens errados e salvamento de progresso.
+- **Teste de Integração:** comunicação entre jogo e banco de dados.
+- **Teste de Usabilidade:** alertas adequados em erros de classificação de itens.
+- **Teste de Desempenho:** medição de resposta em tempo de execução.
 
-------------------------------------------------------------------------
+Fora do escopo nesta etapa:
 
-## 👥 Equipe - Teste de Software
+- Tempo de resposta ≤ 200ms
+- Validação completa da interface visual
+- Compatibilidade entre sistemas (Windows/Linux)
+- Integridade e resiliência dos dados salvos
 
--   **Gustavo Rodrigues dos Reis**
--   **Maria Aparecida da Silva**
--   **Rubens Alexandre de S. Ferreira**
+## 📐 Especificação Formal
 
-## 👥 Equipe - Métodos Formais de Engenharia de Software
+Foi desenvolvido um plano de especificação formal em notação Z, cobrindo todos os requisitos funcionais (RF01–RF06).
+Os esquemas descrevem:
 
--   **Gustavo Rodrigues dos Reis**
--   **Maria Eduarda da Silva Souza**
--   **Kauê Valentim de Carvalho**
+- Estados e invariantes (vidas do jogador, itens, progresso salvo, vidas de Yluh).
+- Operações formais (login, cadastro, coleta, classificação, combate, pausa, salvar e carregar).
+- Garantia de consistência lógica e prevenção de erros durante a execução do jogo.
+
+## 🤝 Colaboradores
+<table align="center">
+  <tr>    
+    <td align="center">
+      <a href="https://github.com/Difierro">
+        <img src="https://avatars.githubusercontent.com/u/113316680?v=4" width="120px;" alt="Foto de Gustavo Rodrigues"/><br>
+        Gustavo Rodrigues
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/KaueCarvalho11">
+        <img src="https://avatars.githubusercontent.com/u/147278152?v=4" width="120px;" alt="Foto de Kauê Valentim"/><br>
+        Kauê Valentim
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/M-Aparecida">
+        <img src="https://avatars.githubusercontent.com/u/143430124?v=4" width="120px;" alt="Foto de 
+        Maria Aparecida"/><br>
+        Maria Aparecida
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/euduar-da">
+        <img src="https://avatars.githubusercontent.com/u/114101163?v=4" width="120px;" alt="Foto de Maria Eduarda"/><br>
+        Maria Eduarda
+      </a>
+    </td>
+     <td align="center">
+      <a href="https://github.com/alexrbss">
+        <img src="https://avatars.githubusercontent.com/u/143243497?v=4" width="120px;" alt="Foto de Rubens Alexandre"/><br>
+        Rubens Alexandre
+      </a>
+    </td>
+  </tr>
+</table>
