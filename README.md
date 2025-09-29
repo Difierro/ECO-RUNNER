@@ -1,2 +1,123 @@
-# ECO-RUNNER
-Repositório dedicado ao projeto das disciplinas de Métodos Formais de Engenharia de Software e Teste de Software
+# Eco Runner 🎮🌱
+
+Eco Runner é um jogo educativo desenvolvido em Python (Pygame) com integração ao banco de dados PostgreSQL. O projeto combina entretenimento, tecnologia e conscientização ambiental, promovendo a coleta seletiva, reciclagem e combate à poluição.
+O jogo está alinhado aos Objetivos de Desenvolvimento Sustentável (ODS), em especial:
+
+- ODS 12 – Consumo e Produção Responsáveis
+- ODS 13 – Ação Contra a Mudança Global do Clima
+
+## 📌 Definição do Projeto
+
+A narrativa apresenta Yluh, o Monstro da Poluição, que ameaça encobrir as cidades com fumaça e destruição. Para enfrentá-lo, surge uma guardiã ambiental, cuja missão é coletar, separar e transformar resíduos em armas contra o inimigo.
+
+A jogabilidade está dividida em três fases principais:
+
+- **Fase 1** - A Coleta: em estilo plataforma 2D, o jogador deve coletar 20 materiais recicláveis, desviando de obstáculos como fumaça tóxica e lixo radioativo.
+- **Fase 2** – A Separação: o jogador deve classificar corretamente os itens coletados nas lixeiras de coleta seletiva (azul, vermelha, verde e amarela). O sistema impede erros, mantendo o item na tela até que seja feita a escolha correta. Ao concluir, o jogador recebe a arma reciclada e suas vidas são restauradas.
+- **Fase 3** – O Desafio Final: a protagonista utiliza a arma reciclada para enfrentar Yluh em uma batalha decisiva, reduzindo sua vida até a vitória.
+
+O Eco Runner proporciona diversão e aprendizado, transmitindo valores de responsabilidade ambiental e incentivando a reflexão sobre os impactos da poluição nas cidades.
+
+
+## 📂 Estrutura do Projeto
+
+Este repositório será desenvolvido ao longo de três unidades.
+Na **Unidade 1**, entregamos:
+
+-   ✅ Definição do projeto
+-   ✅ Requisitos funcionais e não funcionais
+-   ✅ Diagramas de classes e casos de uso
+-   ✅ Plano de testes
+-   ✅ Plano de especificação formal
+
+O desenvolvimento do código (mecânicas do jogo, banco de dados e
+integração) será realizado nas próximas unidades.
+
+
+## 🛠 Tecnologias e Ferramentas Utilizadas
+
+-   **Linguagem:** Python
+-   **Biblioteca de Jogo:** Pygame
+-   **Banco de Dados:** PostgreSQL 
+
+## 📋 Requisitos
+
+### Requisitos Funcionais
+
+-   **RF01:** Login de Usuário
+-   **RF02:** Cadastro de Jogador
+-   **RF03:** Coleta de materiais recicláveis na Fase 1
+-   **RF04:** Classificação correta de itens recicláveis na Fase 2
+-   **RF05:** Combate contra Yluh na Fase 3
+-   **RF06:** Gerenciar jogo (pausa, salvamento e carregamento de progresso)
+
+
+### Requisitos Não Funcionais
+
+-   **RNF01:** Tempo de resposta ≤ 200ms
+-   **RNF02:** Consistência e Legibilidade da Interface
+-   **RNF03:** Compatibilidade com Windows (10/11) e Linux (Ubuntu 22.04 LTS)
+-   **RNF04:** Garantia de integridade e resiliência dos dados salvos
+
+
+## 📊 Plano de Testes
+
+Os testes planejados para a primeira entrega incluem:
+
+- **Teste Funcional:** login, coleta, classificação de itens, bloqueio de itens errados e salvamento de progresso.
+- **Teste de Integração:** comunicação entre jogo e banco de dados.
+- **Teste de Usabilidade:** alertas adequados em erros de classificação de itens.
+- **Teste de Desempenho:** medição de resposta em tempo de execução.
+
+Fora do escopo nesta etapa:
+
+- Tempo de resposta ≤ 200ms
+- Validação completa da interface visual
+- Compatibilidade entre sistemas (Windows/Linux)
+- Integridade e resiliência dos dados salvos
+
+## 📐 Especificação Formal
+
+Foi desenvolvido um plano de especificação formal em notação Z, cobrindo todos os requisitos funcionais (RF01–RF06).
+Os esquemas descrevem:
+
+- Estados e invariantes (vidas do jogador, itens, progresso salvo, vidas de Yluh).
+- Operações formais (login, cadastro, coleta, classificação, combate, pausa, salvar e carregar).
+- Garantia de consistência lógica e prevenção de erros durante a execução do jogo.
+
+## 🤝 Colaboradores
+<table align="center">
+  <tr>    
+    <td align="center">
+      <a href="https://github.com/Difierro">
+        <img src="https://avatars.githubusercontent.com/u/113316680?v=4" width="120px;" alt="Foto de Gustavo Rodrigues"/><br>
+        Gustavo Rodrigues
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/KaueCarvalho11">
+        <img src="https://avatars.githubusercontent.com/u/147278152?v=4" width="120px;" alt="Foto de Kauê Valentim"/><br>
+        Kauê Valentim
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/M-Aparecida">
+        <img src="https://avatars.githubusercontent.com/u/143430124?v=4" width="120px;" alt="Foto de 
+        Maria Aparecida"/><br>
+        Maria Aparecida
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/euduar-da">
+        <img src="https://avatars.githubusercontent.com/u/114101163?v=4" width="120px;" alt="Foto de Maria Eduarda"/><br>
+        Maria Eduarda
+      </a>
+    </td>
+     <td align="center">
+      <a href="https://github.com/alexrbss">
+        <img src="https://avatars.githubusercontent.com/u/143243497?v=4" width="120px;" alt="Foto de Rubens Alexandre"/><br>
+        Rubens Alexandre
+      </a>
+    </td>
+  </tr>
+</table>
