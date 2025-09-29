@@ -25,12 +25,12 @@ O Eco Runner proporciona diversão e aprendizado, transmitindo valores de respon
 Este repositório será desenvolvido ao longo de três unidades.
 Na **Unidade 1**, entregamos:
 
--   ✅ Definição do projeto
--   ✅ Requisitos funcionais e não funcionais
--   ✅ Diagramas de classes
--   ✅ Diagramas de casos de uso
--   ✅ Plano de testes
--   ✅ Plano de especificação formal
+-   ✅ [Definição do projeto](docs/Definição%20do%20Projeto.pdf)
+-   ✅ [Requisitos funcionais e não funcionais](docs/Documento%20de%20Requisitos.pdf)
+-   ✅ [Diagramas de classes](docs/Diagrama%20de%20Classes.pdf)
+-   ✅ [Diagramas de casos de uso](docs/Diagrama%20de%20Casos%20de%20Uso.pdf)
+-   ✅ [Plano de testes](docs/Plano%20de%20Testes.pdf)
+-   ✅ [Plano de especificação formal](docs/Plano%20de%20especificacao%20formal.pdf)
 
 O desenvolvimento do código (mecânicas do jogo, banco de dados e
 integração) será realizado nas próximas unidades.
