@@ -3,6 +3,7 @@
 Eco Runner é um jogo educativo desenvolvido em Python (Pygame) com integração ao banco de dados PostgreSQL. O projeto combina entretenimento, tecnologia e conscientização ambiental, promovendo a coleta seletiva, reciclagem e combate à poluição.
 O jogo está alinhado aos Objetivos de Desenvolvimento Sustentável (ODS), em especial:
 
+- ODS5  – Igualdade de Gênero
 - ODS 12 – Consumo e Produção Responsáveis
 - ODS 13 – Ação Contra a Mudança Global do Clima
 
@@ -12,7 +13,7 @@ A narrativa apresenta Yluh, o Monstro da Poluição, que ameaça encobrir as cid
 
 A jogabilidade está dividida em três fases principais:
 
-- **Fase 1** - A Coleta: em estilo plataforma 2D, o jogador deve coletar 20 materiais recicláveis, desviando de obstáculos como fumaça tóxica e lixo radioativo.
+- **Fase 1** – A Coleta: em estilo plataforma 2D, o jogador deve coletar 20 materiais recicláveis, desviando de obstáculos como fumaça tóxica e lixo radioativo.
 - **Fase 2** – A Separação: o jogador deve classificar corretamente os itens coletados nas lixeiras de coleta seletiva (azul, vermelha, verde e amarela). O sistema impede erros, mantendo o item na tela até que seja feita a escolha correta. Ao concluir, o jogador recebe a arma reciclada e suas vidas são restauradas.
 - **Fase 3** – O Desafio Final: a protagonista utiliza a arma reciclada para enfrentar Yluh em uma batalha decisiva, reduzindo sua vida até a vitória.
 
@@ -26,7 +27,8 @@ Na **Unidade 1**, entregamos:
 
 -   ✅ Definição do projeto
 -   ✅ Requisitos funcionais e não funcionais
--   ✅ Diagramas de classes e casos de uso
+-   ✅ Diagramas de classes
+-   ✅ Diagramas de casos de uso
 -   ✅ Plano de testes
 -   ✅ Plano de especificação formal
 
@@ -45,19 +47,19 @@ integração) será realizado nas próximas unidades.
 ### Requisitos Funcionais
 
 -   **RF01:** Login de Usuário
--   **RF02:** Cadastro de Jogador
--   **RF03:** Coleta de materiais recicláveis na Fase 1
--   **RF04:** Classificação correta de itens recicláveis na Fase 2
--   **RF05:** Combate contra Yluh na Fase 3
--   **RF06:** Gerenciar jogo (pausa, salvamento e carregamento de progresso)
+-   **RF02:** Cadastrar Jogador
+-   **RF03:** Coletar materiais recicláveis 
+-   **RF04:** Classificar itens recicláveis
+-   **RF05:** Combater Yluh
+-   **RF06:** Gerenciar jogo: pausar, salvar e carregar progresso
 
 
 ### Requisitos Não Funcionais
 
--   **RNF01:** Tempo de resposta ≤ 200ms
+-   **RNF01:** Tempo de resposta
 -   **RNF02:** Consistência e Legibilidade da Interface
--   **RNF03:** Compatibilidade com Windows (10/11) e Linux (Ubuntu 22.04 LTS)
--   **RNF04:** Garantia de integridade e resiliência dos dados salvos
+-   **RNF03:** Compatibilidade com Windows/Linux
+-   **RNF04:** Integridade e resiliência dos dados salvos
 
 
 ## 📊 Plano de Testes
@@ -68,13 +70,6 @@ Os testes planejados para a primeira entrega incluem:
 - **Teste de Integração:** comunicação entre jogo e banco de dados.
 - **Teste de Usabilidade:** alertas adequados em erros de classificação de itens.
 - **Teste de Desempenho:** medição de resposta em tempo de execução.
-
-Fora do escopo nesta etapa:
-
-- Tempo de resposta ≤ 200ms
-- Validação completa da interface visual
-- Compatibilidade entre sistemas (Windows/Linux)
-- Integridade e resiliência dos dados salvos
 
 ## 📐 Especificação Formal
 
