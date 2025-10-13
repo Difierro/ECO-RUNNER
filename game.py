@@ -26,7 +26,8 @@ class Game:
             'grass': load_images('tiles/grass'),
             'stone': load_images('tiles/stone'),
             'player': load_image('player/guardia1.png'),
-            'clouds': load_images('clouds')
+            'clouds': load_images('clouds'),
+            'background': load_images('background')
         }
 
         self.clouds = Clouds(self.assets['clouds'], 16)
@@ -35,11 +36,26 @@ class Game:
         
         self.tilemap = Tilemap(self, tile_size=16)
 
+        self.bg_frame = 0
+        self.bg_animation_speed = 0.1
+
+
         self.scroll = [0,0]
     
     def run(self):
         while True:
-            self.screen.fill((14,219,248)) 
+            self.screen.fill((14,219,248))
+
+            # atualiza o frame da animação do fundo
+            self.bg_frame += self.bg_animation_speed
+            if self.bg_frame >= len(self.assets['background']):
+                self.bg_frame = 0
+
+            # desenha o frame atual (sempre, fora do if)
+            bg_img = self.assets['background'][int(self.bg_frame)]
+            self.screen.blit(bg_img, (0, 0))
+
+ 
 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
