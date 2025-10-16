@@ -1,9 +1,9 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from scripts.entities import PhysiscsEntitiy
+from scripts.entities import PhysiscsEntitiy, Player
 from scripts.tilemap import Tilemap 
-from scripts.utils import load_image, load_images
+from scripts.utils import load_image, load_images, Animation
 from scripts.clouds import Clouds
 
 
@@ -27,12 +27,14 @@ class Game:
             'stone': load_images('tiles/stone'),
             'player': load_image('player/guardia1.png'),
             'clouds': load_images('clouds'),
-            'background': load_images('background')
+            'background': load_images('background'),
+            'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
+            'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6)
         }
 
         self.clouds = Clouds(self.assets['clouds'], 16)
 
-        self.player = PhysiscsEntitiy(self, 'player', (50,50), (16,16))
+        self.player = Player(self, (50,50), (16,16))
         
         self.tilemap = Tilemap(self, tile_size=16)
 
