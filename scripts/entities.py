@@ -22,8 +22,9 @@ class PhysiscsEntitiy:
             self.action = action
             self.animation = self.game.assets[self.entity_type + '/' + self.action].copy()
     
-    def update(self, tilemap, movement =(0,0)):
-        self.collisions = {'up': False, 'down': False, 'left': False, 'right':False}
+    def update(self, tilemap, movement=(0, 0)):
+        self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
+        
         frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])
         
         self.pos[0] += frame_movement[0]
@@ -36,9 +37,8 @@ class PhysiscsEntitiy:
                 if frame_movement[0] < 0:
                     entity_rect.left = rect.right
                     self.collisions['left'] = True
-
                 self.pos[0] = entity_rect.x
-                
+        
         self.pos[1] += frame_movement[1]
         entity_rect = self.rect()
         for rect in tilemap.physics_rects_around(self.pos):
@@ -50,22 +50,22 @@ class PhysiscsEntitiy:
                     entity_rect.top = rect.bottom
                     self.collisions['up'] = True
                 self.pos[1] = entity_rect.y
-        
+                
         if movement[0] > 0:
             self.flip = False
         if movement[0] < 0:
             self.flip = True
         
-        self.velocity[1] = min(5, self.velocity[1]+0.1)
+        self.velocity[1] = min(5, self.velocity[1] + 0.1)
         
         if self.collisions['up'] or self.collisions['down']:
-            self.velocity[1] = 0    
-        
-        self.animation.update()    
+            self.velocity[1] = 0
+            
+        self.animation.update()
     
-    def render(self, surf):
-        surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] + self.anim_offset[0], self.pos[1] + self.anim_offset[1]))
-        #surf.blit(self.game.assets['player'], self.pos)
+    def render(self, surf, offset=(0, 0)):
+        surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]))
+
         
 class Player(PhysiscsEntitiy):
     def __init__(self, game, pos, size):

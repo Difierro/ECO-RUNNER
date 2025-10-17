@@ -15,6 +15,7 @@ class Game:
         
         pygame.display.set_caption("ECO RUNNER")
         self.screen = pygame.display.set_mode((width, heigth))
+        self.display = pygame.Surface((width, heigth))
         
         self.clock = pygame.time.Clock()
     
@@ -25,9 +26,8 @@ class Game:
         self.assets = {
             'grass': load_images('tiles/grass'),
             'stone': load_images('tiles/stone'),
-            'player': load_image('player/guardia1.png'),
             'clouds': load_images('clouds'),
-            'background': load_images('background'),
+            'background': load_image('background/bg1.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6)
         }
@@ -37,42 +37,27 @@ class Game:
         self.player = Player(self, (50,50), (16,16))
         
         self.tilemap = Tilemap(self, tile_size=16)
-
-        self.bg_frame = 0
-        self.bg_animation_speed = 0.1
-
-
+        
         self.scroll = [0,0]
     
     def run(self):
         while True:
-            self.screen.fill((14,219,248))
-
-            # atualiza o frame da animação do fundo
-            self.bg_frame += self.bg_animation_speed
-            if self.bg_frame >= len(self.assets['background']):
-                self.bg_frame = 0
-
-            # desenha o frame atual (sempre, fora do if)
-            bg_img = self.assets['background'][int(self.bg_frame)]
-            self.screen.blit(bg_img, (0, 0))
-
- 
+            self.display.blit(self.assets['background'], (0, 0))
 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
+          
+            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+            self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+            
             self.clouds.update()
-            self.clouds.render(self.screen, render_scroll) 
-
-            self.clouds.update()
-            self.clouds.render(self.screen, render_scroll)
-
-            self.tilemap.render(self.screen)
-
-           
+            self.clouds.render(self.display, offset=render_scroll)
+            
+            self.tilemap.render(self.display, offset=render_scroll)
             
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-            self.player.render(self.screen)
+            self.player.render(self.display, offset=render_scroll)
             
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -91,6 +76,7 @@ class Game:
                     if event.key == K_d or event.key == K_RIGHT:
                         self.movement[1] = False
             
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
  
