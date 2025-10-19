@@ -15,7 +15,7 @@ class Game:
         
         pygame.display.set_caption("ECO RUNNER")
         self.screen = pygame.display.set_mode((width, heigth))
-        self.display = pygame.Surface((width, heigth))
+        self.display = pygame.Surface((320, 240))
         
         self.clock = pygame.time.Clock()
     
