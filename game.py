@@ -20,14 +20,14 @@ class Game:
         self.clock = pygame.time.Clock()
     
         self.movement = [False, False]
-        
-        self.collision_area = pygame.Rect(50,50,300,50)
             
         self.assets = {
+            'decor': load_images('tiles/decor'),
             'grass': load_images('tiles/grass'),
             'stone': load_images('tiles/stone'),
+            'large_decor': load_images('tiles/large_decor'),
             'clouds': load_images('clouds'),
-            'background': load_image('background/bg1.png'),
+            'background': load_image('background/0.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6)
         }
@@ -37,6 +37,7 @@ class Game:
         self.player = Player(self, (50,50), (16,16))
         
         self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap.load('map.json')
         
         self.scroll = [0,0]
     
