@@ -71,6 +71,7 @@ class Player(PhysiscsEntitiy):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
+        self.jumps = 2
 
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
@@ -78,7 +79,9 @@ class Player(PhysiscsEntitiy):
         self.air_time += 1
         if self.collisions['down']:
             self.air_time = 0
+            self.jumps = 2
 
+        #se tiver animação para pular
         #if self.air_time > 4:
         #    self.set_action('pula')
         
@@ -86,3 +89,9 @@ class Player(PhysiscsEntitiy):
            self.set_action('anda')
         else:
             self.set_action('parada')
+            
+    def jump(self):
+        if self.jumps:
+            self.velocity[1] = -2.5
+            self.jumps -= 1
+            self.air_time = 5
