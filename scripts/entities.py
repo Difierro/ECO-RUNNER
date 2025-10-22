@@ -66,6 +66,16 @@ class PhysiscsEntitiy:
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]))
 
+class Lixo(PhysiscsEntitiy):
+    def __init__(self, game, pos, size):
+        super().__init__(game, 'lixo', pos, size)
+        
+    def update(self, tilemap, movement=(0, 0)):
+        super().update(tilemap, movement)
+            
+    def render(self, surf, offset=(0, 0)):
+        super().render(surf, offset=offset)
+
         
 class Player(PhysiscsEntitiy):
     def __init__(self, game, pos, size):
@@ -95,3 +105,28 @@ class Player(PhysiscsEntitiy):
             self.velocity[1] = -2.5
             self.jumps -= 1
             self.air_time = 5
+            
+    def colide_lixo(self, game):
+        tempo_atual = pygame.time.get_ticks()
+
+        for tile in game.tilemap.tiles_around(self.pos):
+            if tile['type'] == 'lixo':
+                tile_rect = pygame.Rect(
+                    tile['pos'][0] * game.tilemap.tile_size,
+                    tile['pos'][1] * game.tilemap.tile_size,
+                    game.tilemap.tile_size,
+                    game.tilemap.tile_size
+                )
+                if self.rect().colliderect(tile_rect): #se colidiu
+                    if not game.tempo_imune_ativo: # se ainda não está imune
+                        print("colidiu com lixo radioativo!")
+                        game.tempo_imune_ativo = True
+                        game.tempo_imune_inicio = tempo_atual
+
+                if game.tempo_imune_ativo: # se está imune, verifica se passou o tempo
+                    tempo_passado = tempo_atual - game.tempo_imune_inicio
+                    if tempo_passado >= game.duracao_imunidade:
+                        print("imunidade acabou!")
+                        game.tempo_imune_ativo = False
+                    else:
+                        print("imune...")

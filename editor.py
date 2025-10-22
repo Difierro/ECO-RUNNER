@@ -21,7 +21,7 @@ from scripts.tilemap import Tilemap
 RENDER_SCALE = 2.0
 
 #mapa para editar
-mapa = 'map.json'
+mapa = 'assets/maps/0.json'
 
 class Editor:
     def __init__(self):
@@ -42,6 +42,7 @@ class Editor:
             'grass': load_images('tiles/grass'),
             'stone': load_images('tiles/stone'),
             'large_decor': load_images('tiles/large_decor'),
+            'lixo': load_images('colisao/lixo')
         }
         
         self.movement = [False, False, False, False]

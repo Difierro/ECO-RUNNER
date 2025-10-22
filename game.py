@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from scripts.entities import PhysiscsEntitiy, Player
+from scripts.entities import PhysiscsEntitiy, Player, Lixo
 from scripts.tilemap import Tilemap 
 from scripts.utils import load_image, load_images, Animation
 from scripts.clouds import Clouds
@@ -29,17 +29,25 @@ class Game:
             'clouds': load_images('clouds'),
             'background': load_image('background/0.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
-            'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6)
+            'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6),
+            'lixo': load_images('colisao/lixo')
         }
 
         self.clouds = Clouds(self.assets['clouds'], 16)
 
-        self.player = Player(self, (50,50), (16,16))
+        self.player = Player(self, (35,120), (16,16))
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.tilemap.load('map.json')
+        self.load_level(0)
         
-        self.scroll = [0,0]
+        self.tempo_imune_ativo = False
+        self.tempo_imune_inicio = 0
+        self.duracao_imunidade =  #fica imune por 3s
+        
+    def load_level(self, map_id):
+        self.tilemap.load('assets/maps/' + str(map_id) + '.json')
+
+        self.scroll = [0, 0]
     
     def run(self):
         while True:
@@ -59,6 +67,8 @@ class Game:
             
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
+
+            self.player.colide_lixo(self)
             
             for event in pygame.event.get():
                 if event.type == QUIT:
