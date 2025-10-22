@@ -42,7 +42,7 @@ class Game:
         
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
-        self.duracao_imunidade =  #fica imune por 3s
+        self.duracao_imunidade =  3000 #fica imune por 3s
         
     def load_level(self, map_id):
         self.tilemap.load('assets/maps/' + str(map_id) + '.json')
