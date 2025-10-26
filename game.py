@@ -5,6 +5,7 @@ from scripts.entities import PhysiscsEntitiy, Player, Lixo
 from scripts.tilemap import Tilemap 
 from scripts.utils import load_image, load_images, Animation
 from scripts.clouds import Clouds
+import time
 
 
 class Game:
@@ -30,7 +31,7 @@ class Game:
             'background': load_image('background/0.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6),
-            'lixo': load_images('colisao/lixo')
+            'lixo': load_images('colisao/')
         }
 
         self.clouds = Clouds(self.assets['clouds'], 16)
@@ -38,17 +39,69 @@ class Game:
         self.player = Player(self, (35,120), (10,16))
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.load_level(0)
+        
+        self.level = 0 
+        self.max_level = 2  
+        self.load_level(self.level)
+        self.show_transition_screen(f'level/{self.level}.png')
         
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
         self.duracao_imunidade =  3000 #fica imune por 3s
+    
+    def show_transition_screen(self, image_path, duration=2.0):
+        transition_img = load_image(image_path)
+        transition_img = pygame.transform.scale(transition_img, self.screen.get_size())
+        
+        overlay = pygame.Surface(self.screen.get_size())
+        overlay.fill((0, 0, 0))
+
+        for alpha in range(0, 255, 8):
+            overlay.set_alpha(alpha)
+            self.screen.blit(transition_img, (0, 0))
+            self.screen.blit(overlay, (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+            
+        for alpha in range(255, -1, -8):
+            overlay.set_alpha(alpha)
+            self.screen.blit(transition_img, (0, 0))
+            self.screen.blit(overlay, (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+        
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    exit()
+            self.screen.blit(transition_img, (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+
+        for alpha in range(0, 255, 8):
+            overlay.set_alpha(alpha)
+            self.screen.blit(transition_img, (0, 0))
+            self.screen.blit(overlay, (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+        
         
     def load_level(self, map_id):
         self.tilemap.load('assets/maps/' + str(map_id) + '.json')
 
         self.scroll = [0, 0]
+        self.player.pos = [35, 120]
+        self.movement = [False, False]
     
+    def next_level(self):
+        self.level += 1
+        if self.level < self.max_level:
+            self.show_transition_screen(f'level/{self.level}.png')
+            self.load_level(self.level)
+            
+            
     def run(self):
         while True:
             self.display.blit(self.assets['background'], (0, 0))
@@ -68,6 +121,10 @@ class Game:
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
 
+            if self.player.pos[0] > 300: #implementar logica correta
+                self.next_level()
+            
+            
             self.player.colide_lixo(self)
             
             for event in pygame.event.get():
