@@ -43,7 +43,7 @@ class Game:
         self.level = 0 
         self.max_level = 2  
         self.load_level(self.level)
-        self.show_transition_screen(f'level/{self.level}.png')
+        self.show_transition_screen(f'textos/level/{self.level}.png')
         
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
@@ -98,7 +98,7 @@ class Game:
     def next_level(self):
         self.level += 1
         if self.level < self.max_level:
-            self.show_transition_screen(f'level/{self.level}.png')
+            self.show_transition_screen(f'textos/level/{self.level}.png')
             self.load_level(self.level)
             
             
