@@ -1,4 +1,5 @@
 import pygame
+from scripts.utils import load_image
 
 class PhysiscsEntitiy:
     def __init__(self, game, entity_type, pos, size):
@@ -12,7 +13,8 @@ class PhysiscsEntitiy:
         self.action = ''
         self.anim_offset = (3, 0)
         self.flip = False
-        self.set_action('anda')
+        if entity_type == 'player':
+            self.set_action('anda') 
     
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
@@ -70,17 +72,7 @@ class PhysiscsEntitiy:
         )
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), sprite_pos)
 
-class Lixo(PhysiscsEntitiy):
-    def __init__(self, game, pos, size):
-        super().__init__(game, 'lixo', pos, size)
-        
-    def update(self, tilemap, movement=(0, 0)):
-        super().update(tilemap, movement)
-            
-    def render(self, surf, offset=(0, 0)):
-        super().render(surf, offset=offset)
 
-        
 class Player(PhysiscsEntitiy):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
@@ -134,3 +126,36 @@ class Player(PhysiscsEntitiy):
                         game.tempo_imune_ativo = False
                     else:
                         print("imune...")
+    
+    def coleta_reciclavel(self, game, rec):
+        rec_rect = rec.rect()
+        player_rect = game.player.rect()
+        
+        # retangulo para depurar
+        #pygame.draw.rect(self.display, (0,255,0), (rec_rect.x - self.scroll[0], rec_rect.y - self.scroll[1], rec_rect.width, rec_rect.height), 1)
+        #pygame.draw.rect(self.display, (255,0,0), (player_rect.x - self.scroll[0], player_rect.y - self.scroll[1], player_rect.width, player_rect.height), 1)
+        
+        if rec.tile_data.get('aparece', True) and not rec.collected:
+            if player_rect.colliderect(rec_rect):
+                rec.collect()
+                game.quantidade_coletada_total += 1
+                print(f"Reciclável coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
+
+class Reciclavel(PhysiscsEntitiy):
+    def __init__(self, game, pos, size, variant=0):
+        super().__init__(game, 'reciclavel', pos, size)
+        self.variant = variant
+        self.collected = False
+        self.tile_data = {}  # Aqui armazenamos a info 'aparece'
+        self.img = self.game.assets['reciclavel'][self.variant]
+
+    def collect(self):
+        self.collected = True
+
+    def render(self, surf, offset=(0, 0)):
+        # Se não aparece ou já foi coletado, renderiza imagem "transparente"
+        if not self.tile_data.get('aparece', True) or self.collected:
+            img_to_draw = load_image('colisao/1.png')
+        else:
+            img_to_draw = self.img
+        surf.blit(img_to_draw, (self.pos[0] - offset[0], self.pos[1] - offset[1]))

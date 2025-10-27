@@ -42,7 +42,8 @@ class Editor:
             'grass': load_images('tiles/grass'),
             'stone': load_images('tiles/stone'),
             'large_decor': load_images('tiles/large_decor'),
-            'lixo': load_images('colisao/')
+            'lixo': load_images('colisao/'),
+            'reciclavel': load_images('reciclaveis/')
         }
         
         self.movement = [False, False, False, False]
@@ -89,7 +90,17 @@ class Editor:
                 self.display.blit(current_tile_img, mpos)
             
             if self.clicking and self.ongrid:
-                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                #self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                tile_data = {
+                    'type': self.tile_list[self.tile_group],
+                    'variant': self.tile_variant,
+                    'pos': tile_pos
+                }
+                # Se for reciclável, adiciona a chave 'aparece' default True
+                if tile_data['type'] == 'reciclavel':
+                    tile_data['aparece'] = True
+                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = tile_data
+
             if self.right_clicking:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:

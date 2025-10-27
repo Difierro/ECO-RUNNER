@@ -1,12 +1,12 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from scripts.entities import PhysiscsEntitiy, Player, Lixo
+import random
+from scripts.entities import Player, Reciclavel
 from scripts.tilemap import Tilemap 
 from scripts.utils import load_image, load_images, Animation
 from scripts.clouds import Clouds
 import time
-
 
 class Game:
     def __init__(self):
@@ -17,7 +17,6 @@ class Game:
         pygame.display.set_caption("ECO RUNNER")
         self.screen = pygame.display.set_mode((width, heigth))
         self.display = pygame.Surface((320, 240))
-        
         self.clock = pygame.time.Clock()
     
         self.movement = [False, False]
@@ -31,7 +30,8 @@ class Game:
             'background': load_image('background/0.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6),
-            'lixo': load_images('colisao/')
+            'lixo': load_images('colisao/'),
+            'reciclavel': load_images('reciclaveis/')
         }
 
         self.clouds = Clouds(self.assets['clouds'], 16)
@@ -42,17 +42,21 @@ class Game:
         
         self.level = 0 
         self.max_level = 2  
-        self.load_level(self.level)
-        self.show_transition_screen(f'textos/level/{self.level}.png')
         
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
-        self.duracao_imunidade =  3000 #fica imune por 3s
-    
+        self.duracao_imunidade =  3000
+
+        self.reciclaveis_por_fase = 20
+        self.reciclaveis_totais = []
+        self.quantidade_coletada_total = 19 # valor vindo do banco 
+
+        self.load_level(self.level)
+        #self.show_transition_screen(f'textos/level/{self.level}.png')
+        
     def show_transition_screen(self, image_path, duration=2.0):
         transition_img = load_image(image_path)
         transition_img = pygame.transform.scale(transition_img, self.screen.get_size())
-        
         overlay = pygame.Surface(self.screen.get_size())
         overlay.fill((0, 0, 0))
 
@@ -87,28 +91,38 @@ class Game:
             pygame.display.update()
             self.clock.tick(60)
         
-        
     def load_level(self, map_id):
-        self.tilemap.load('assets/maps/' + str(map_id) + '.json')
-
-        self.scroll = [0, 0]
-        self.player.pos = [35, 120]
+        self.tilemap.load(f'assets/maps/{map_id}.json')
+        self.scroll = [0,0]
+        self.player.pos = [35,120]
         self.movement = [False, False]
-    
+        
+        if self.level == 0:
+            self.reciclaveis_totais = []
+            for tile in self.tilemap.tilemap.values():
+                if tile['type'] == 'reciclavel':
+                    pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
+                    rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
+                    rec.tile_data = tile
+                    self.reciclaveis_totais.append(rec)
+            
+            faltam = max(self.reciclaveis_por_fase - self.quantidade_coletada_total, 0)
+            for rec in self.reciclaveis_totais:
+                rec.tile_data['aparece'] = False
+            
+            for rec in random.sample(self.reciclaveis_totais, min(faltam, len(self.reciclaveis_totais))):
+                rec.tile_data['aparece'] = True
+        
     def next_level(self):
         self.level += 1
         if self.level < self.max_level:
             self.show_transition_screen(f'textos/level/{self.level}.png')
             self.load_level(self.level)
-            
-            
+
     def run(self):
         while True:
             self.display.blit(self.assets['background'], (0, 0))
-
-            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
-          
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
@@ -117,15 +131,27 @@ class Game:
             self.clouds.render(self.display, offset=render_scroll)
             
             self.tilemap.render(self.display, offset=render_scroll)
-            
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+            self.player.update(self.tilemap, (self.movement[1]-self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
+            
+            if self.level == 0:
+                for rec in self.reciclaveis_totais:
+                    
+                    self.player.coleta_reciclavel(self, rec)
+                    
+                    # renderiza imagem real se aparece, senao usa a imagem pra representar a coletada
+                    img_to_render = None
+                    if rec.tile_data.get('aparece', True) and not rec.collected:
+                        img_to_render = rec.img
+                    else:
+                        img_to_render = load_image('colisao/1.png') # temporário
+                    
+                    self.display.blit(img_to_render, (rec.pos[0] - self.scroll[0], rec.pos[1] - self.scroll[1]))
+                
+                if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
+                    self.next_level()
 
-            if self.player.pos[0] > 300: #implementar logica correta
-                self.next_level()
-            
-            
-            self.player.colide_lixo(self)
+                self.player.colide_lixo(self)
             
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -147,6 +173,6 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
- 
+
 if __name__ == "__main__":                    
     Game().run()
