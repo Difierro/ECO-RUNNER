@@ -49,7 +49,7 @@ class Game:
 
         self.reciclaveis_por_fase = 20
         self.reciclaveis_totais = []
-        self.quantidade_coletada_total = 19 # valor vindo do banco 
+        self.quantidade_coletada_total = 0 # valor vindo do banco 
 
         self.load_level(self.level)
         #self.show_transition_screen(f'textos/level/{self.level}.png')
@@ -139,14 +139,8 @@ class Game:
                     
                     self.player.coleta_reciclavel(self, rec)
                     
-                    # renderiza imagem real se aparece, senao usa a imagem pra representar a coletada
-                    img_to_render = None
                     if rec.tile_data.get('aparece', True) and not rec.collected:
-                        img_to_render = rec.img
-                    else:
-                        img_to_render = load_image('colisao/1.png') # temporário
-                    
-                    self.display.blit(img_to_render, (rec.pos[0] - self.scroll[0], rec.pos[1] - self.scroll[1]))
+                        self.display.blit(rec.img, (rec.pos[0] - self.scroll[0], rec.pos[1] - self.scroll[1]))
                 
                 if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
                     self.next_level()
