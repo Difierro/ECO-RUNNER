@@ -112,6 +112,7 @@ class Game:
         self.movement = [False, False]
         
         if self.level == 0:
+            self.quantidade_coletada_total = 0
             self.reciclaveis_totais = []
             
             for loc in list(self.tilemap.tilemap): 
@@ -150,6 +151,10 @@ class Game:
             self.tilemap.render(self.display, offset=render_scroll)
             self.player.update(self.tilemap, (self.movement[1]-self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
+
+            if self.player.pos[1] > 1000:
+                self.show_transition_screen('textos/game_over.png', duration = 2.0)
+                self.load_level(self.level)
             
             if self.level == 0:
                 for rec in self.reciclaveis_totais:
