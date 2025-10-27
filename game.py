@@ -181,10 +181,11 @@ class Game:
                         self.movement[1] = False
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
-                        
-            texto_hud = f"ITENS COLETADOS: {self.quantidade_coletada_total}/{self.reciclaveis_por_fase}"
-            
-            self.draw_text_hud(texto_hud, pos=(10, 10))
+
+            if self.level == 0:         
+                texto_hud = f"ITENS COLETADOS: {self.quantidade_coletada_total}/{self.reciclaveis_por_fase}"
+                
+                self.draw_text_hud(texto_hud, pos=(10, 10))
             pygame.display.update()
             self.clock.tick(60)
 
