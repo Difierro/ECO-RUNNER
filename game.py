@@ -99,12 +99,15 @@ class Game:
         
         if self.level == 0:
             self.reciclaveis_totais = []
-            for tile in self.tilemap.tilemap.values():
+            
+            for loc in list(self.tilemap.tilemap): 
+                tile = self.tilemap.tilemap[loc]
                 if tile['type'] == 'reciclavel':
                     pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
                     rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
                     rec.tile_data = tile
                     self.reciclaveis_totais.append(rec)
+                    del self.tilemap.tilemap[loc]
             
             faltam = max(self.reciclaveis_por_fase - self.quantidade_coletada_total, 0)
             for rec in self.reciclaveis_totais:
@@ -139,8 +142,7 @@ class Game:
                     
                     self.player.coleta_reciclavel(self, rec)
                     
-                    if rec.tile_data.get('aparece', True) and not rec.collected:
-                        self.display.blit(rec.img, (rec.pos[0] - self.scroll[0], rec.pos[1] - self.scroll[1]))
+                    rec.render(self.display, offset=render_scroll)
                 
                 if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
                     self.next_level()

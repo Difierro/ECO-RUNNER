@@ -153,9 +153,8 @@ class Reciclavel(PhysiscsEntitiy):
         self.collected = True
 
     def render(self, surf, offset=(0, 0)):
-        # Se não aparece ou já foi coletado, renderiza imagem "transparente"
-        if not self.tile_data.get('aparece', True) or self.collected:
-            img_to_draw = load_image('colisao/1.png')
-        else:
-            img_to_draw = self.img
-        surf.blit(img_to_draw, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+        deve_aparecer = self.tile_data.get('aparece', True)
+        foi_coletado = self.collected
+
+        if deve_aparecer and not foi_coletado:
+            surf.blit(self.img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
