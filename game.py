@@ -20,7 +20,10 @@ class Game:
         self.clock = pygame.time.Clock()
     
         self.movement = [False, False]
+
             
+        self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16) 
+           
         self.assets = {
             'decor': load_images('tiles/decor'),
             'grass': load_images('tiles/grass'),
@@ -49,10 +52,21 @@ class Game:
 
         self.reciclaveis_por_fase = 20
         self.reciclaveis_totais = []
-        self.quantidade_coletada_total = 0 # valor vindo do banco 
-
+        self.quantidade_coletada_total = 0 
         self.load_level(self.level)
-        #self.show_transition_screen(f'textos/level/{self.level}.png')
+    
+    def draw_text_hud(self, text, pos, color=(255, 255, 255), outline_color=(0, 0, 1)):
+        antialiasing = 0
+        
+        text_surf_outline = self.font.render(text, antialiasing, outline_color)
+    
+        text_surf_main = self.font.render(text, antialiasing, color)
+        self.screen.blit(text_surf_outline, (pos[0] - 1, pos[1]))
+        self.screen.blit(text_surf_outline, (pos[0] + 1, pos[1])) 
+        self.screen.blit(text_surf_outline, (pos[0], pos[1] - 1))
+        self.screen.blit(text_surf_outline, (pos[0], pos[1] + 1)) 
+        
+        self.screen.blit(text_surf_main, pos)
         
     def show_transition_screen(self, image_path, duration=2.0):
         transition_img = load_image(image_path)
@@ -167,6 +181,10 @@ class Game:
                         self.movement[1] = False
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+                        
+            texto_hud = f"ITENS COLETADOS: {self.quantidade_coletada_total}/{self.reciclaveis_por_fase}"
+            
+            self.draw_text_hud(texto_hud, pos=(10, 10))
             pygame.display.update()
             self.clock.tick(60)
 
