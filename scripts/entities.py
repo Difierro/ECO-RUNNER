@@ -1,4 +1,5 @@
 import pygame
+#import game
 from scripts.utils import load_image
 
 class PhysiscsEntitiy:
@@ -104,28 +105,25 @@ class Player(PhysiscsEntitiy):
             
     def colide_lixo(self, game):
         tempo_atual = pygame.time.get_ticks()
+        colidiu = False
 
-        for tile in game.tilemap.tiles_around(self.pos):
-            if tile['type'] == 'lixo':
-                tile_rect = pygame.Rect(
-                    tile['pos'][0] * game.tilemap.tile_size,
-                    tile['pos'][1] * game.tilemap.tile_size,
-                    game.tilemap.tile_size,
-                    game.tilemap.tile_size
-                )
-                if self.rect().colliderect(tile_rect): #se colidiu
-                    if not game.tempo_imune_ativo: # se ainda não está imune
-                        print("colidiu com lixo radioativo!")
-                        game.tempo_imune_ativo = True
-                        game.tempo_imune_inicio = tempo_atual
+        for lixo in game.lixos_totais:
+            if self.rect().colliderect(lixo.rect):
+                colidiu = True
+                if not game.tempo_imune_ativo:
+                    print("Colidiu com lixo radioativo!")
+                    game.tempo_imune_ativo = True
+                    game.tempo_imune_inicio = tempo_atual
+                else:
+                    print("Imune...")
 
-                if game.tempo_imune_ativo: # se está imune, verifica se passou o tempo
-                    tempo_passado = tempo_atual - game.tempo_imune_inicio
-                    if tempo_passado >= game.duracao_imunidade:
-                        print("imunidade acabou!")
-                        game.tempo_imune_ativo = False
-                    else:
-                        print("imune...")
+        if game.tempo_imune_ativo:
+            tempo_passado = tempo_atual - game.tempo_imune_inicio
+            if tempo_passado >= game.duracao_imunidade:
+                print("Imunidade acabou!")
+                game.tempo_imune_ativo = False
+
+        return colidiu
     
     def coleta_reciclavel(self, game, rec):
         rec_rect = rec.rect()
@@ -158,3 +156,14 @@ class Reciclavel(PhysiscsEntitiy):
 
         if deve_aparecer and not foi_coletado:
             surf.blit(self.img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+
+class Lixo:
+    def __init__(self, game, pos, size, img):
+        self.game = game
+        self.pos = pos
+        self.size = size
+        self.image = img
+        self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
+
+    def render(self, surface, offset=(0,0)):
+        surface.blit(self.image, (self.pos[0]-offset[0], self.pos[1]-offset[1]))
