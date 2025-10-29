@@ -134,9 +134,9 @@ class Game:
         if self.tempo_imune_ativo and pygame.time.get_ticks() - self.tempo_imune_inicio > 3000:
             self.tempo_imune_ativo = False
 
-        player_rect = self.player.rect().inflate(4, 4)
+        player_rect = self.player.rect().inflate(2, 2)
         for lixo in self.lixos_totais:
-            lixo_rect = lixo.rect.inflate(4, 4)
+            lixo_rect = lixo.rect.inflate(2, 2)
 
             if player_rect.colliderect(lixo_rect):
                 if not self.tempo_imune_ativo:

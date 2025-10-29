@@ -63,6 +63,11 @@ class PhysiscsEntitiy:
         
         if self.collisions['up'] or self.collisions['down']:
             self.velocity[1] = 0
+
+        if self.velocity[0] > 0:
+            self.velocity[0] = max(0, self.velocity[0] - 0.1)
+        elif self.velocity[0] < 0:
+            self.velocity[0] = min(0, self.velocity[0] + 0.1)
             
         self.animation.update()
     
@@ -114,8 +119,15 @@ class Player(PhysiscsEntitiy):
                     print("Colidiu com lixo radioativo!")
                     game.tempo_imune_ativo = True
                     game.tempo_imune_inicio = tempo_atual
+
+            
                 else:
                     print("Imune...")
+                    self.velocity[1] = -3
+                    if self.flip: 
+                        self.velocity[0] = 2 
+                    else:
+                        self.velocity[0] = -2
 
         if game.tempo_imune_ativo:
             tempo_passado = tempo_atual - game.tempo_imune_inicio
