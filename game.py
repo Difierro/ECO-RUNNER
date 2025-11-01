@@ -19,6 +19,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
         self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
+        self.music = pygame.mixer.music.load("assets/sounds/background.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.5)
 
         self.assets = {
             'decor': load_images('tiles/decor'),
@@ -162,6 +165,7 @@ class Game:
                     break
 
     def run(self):
+        pygame.mixer.music.play(loops=-1)
         while True:
             self.display.blit(self.assets['background'], (0, 0))
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
