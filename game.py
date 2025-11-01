@@ -169,15 +169,10 @@ class Game:
     def run(self):
         pygame.mixer.music.play(loops=-1)
         while True:
-            self.display.blit(self.assets['background'], (0, 0))
-            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
-            camera_offset_y = 95 
-            target_y = self.player.rect().centery - camera_offset_y - self.display.get_height() / 2
-            if target_y > self.scroll[1]:
-                self.scroll[1] += (target_y - self.scroll[1]) / 30
-            elif target_y < self.scroll[1]:
-                if self.player.pos[1] > 150:
-                    self.scroll[1] += (target_y - self.scroll[1]) / 30
+            self.display.blit(self.assets['background'], (0, 0)) 
+            camera_offset_y = 50
+            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30 
+            self.scroll[1] += ((self.player.rect().centery - camera_offset_y) - self.display.get_height() / 2 - self.scroll[1]) / 30 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.clouds.update()
