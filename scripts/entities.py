@@ -147,6 +147,7 @@ class Player(PhysiscsEntitiy):
         
         if rec.tile_data.get('aparece', True) and not rec.collected:
             if player_rect.colliderect(rec_rect):
+                game.item_collected.play()
                 rec.collect()
                 game.quantidade_coletada_total += 1
                 print(f"Reciclável coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")

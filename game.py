@@ -22,6 +22,8 @@ class Game:
         self.music = pygame.mixer.music.load("assets/sounds/background.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.5)
+        self.jump_sound = pygame.mixer.Sound('assets/sounds/jump.mp3')
+        self.item_collected = pygame.mixer.Sound('assets/sounds/collect.mp3')
 
         self.assets = {
             'decor': load_images('tiles/decor'),
@@ -210,7 +212,8 @@ class Game:
                 if event.type == KEYDOWN:
                     if event.key in [K_a, K_LEFT]: self.movement[0] = True
                     if event.key in [K_d, K_RIGHT]: self.movement[1] = True
-                    if event.key in [K_w, K_UP]: self.player.jump()
+                    if event.key in [K_w, K_UP]: self.player.jump(), self.jump_sound.play()
+                    
                 if event.type == KEYUP:
                     if event.key in [K_a, K_LEFT]: self.movement[0] = False
                     if event.key in [K_d, K_RIGHT]: self.movement[1] = False
