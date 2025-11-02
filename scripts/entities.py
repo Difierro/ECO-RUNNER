@@ -117,10 +117,9 @@ class Player(PhysiscsEntitiy):
                 colidiu = True
                 if not game.tempo_imune_ativo:
                     print("Colidiu com lixo radioativo!")
+                    game.vidas -= 1
                     game.tempo_imune_ativo = True
                     game.tempo_imune_inicio = tempo_atual
-
-            
                 else:
                     print("Imune...")
                     self.velocity[1] = -3
@@ -151,6 +150,22 @@ class Player(PhysiscsEntitiy):
                 rec.collect()
                 game.quantidade_coletada_total += 1
                 print(f"Reciclável coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
+
+    def render(self, surf, offset=(0, 0)):
+        sprite = pygame.transform.flip(self.animation.img(), self.flip, False).copy()
+        if self.game.tempo_imune_ativo:
+            tempo_passado = pygame.time.get_ticks() - self.game.tempo_imune_inicio
+            if ((tempo_passado // 150) % 2) == 0:
+                sprite.set_alpha(100)
+            else:
+                sprite.set_alpha(255)
+        else:
+            sprite.set_alpha(255)
+        sprite_pos = (
+            self.pos[0] - offset[0] - 3,
+            self.pos[1] - offset[1]
+        )
+        surf.blit(sprite, sprite_pos)
 
 class Reciclavel(PhysiscsEntitiy):
     def __init__(self, game, pos, size, variant=0):

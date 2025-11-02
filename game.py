@@ -53,6 +53,8 @@ class Game:
         self.lixos_totais = []
         self.quantidade_coletada_total = 15
 
+        self.depurar = False
+
         self.load_level(self.level)
 
     def draw_text_hud(self, text, pos, color=(255, 255, 255), outline_color=(0, 0, 1)):
@@ -136,14 +138,12 @@ class Game:
             self.load_level(self.level)
 
     def colide_lixo(self):
-        if self.tempo_imune_ativo and pygame.time.get_ticks() - self.tempo_imune_inicio > 3000:
+        if self.tempo_imune_ativo and pygame.time.get_ticks() - self.tempo_imune_inicio > self.duracao_imunidade:
             self.tempo_imune_ativo = False
 
-        player_rect = self.player.rect().inflate(1, 1)
+        player_rect = self.player.rect()
         for lixo in self.lixos_totais:
-            lixo_rect = lixo.rect.inflate(1, 1)
-
-            if player_rect.colliderect(lixo_rect):
+            if player_rect.colliderect(lixo.rect):
                 if not self.tempo_imune_ativo:
                     self.vidas -= 1
                     self.tempo_imune_ativo = True
