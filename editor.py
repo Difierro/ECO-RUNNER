@@ -43,7 +43,9 @@ class Editor:
             'stone': load_images('tiles/stone'),
             'large_decor': load_images('tiles/large_decor'),
             'lixo': load_images('colisao/'),
-            'reciclavel': load_images('reciclaveis/')
+            'reciclavel': load_images('reciclaveis/'),
+            'placas': load_images('placas/')
+
         }
         
         self.movement = [False, False, False, False]

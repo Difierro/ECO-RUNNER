@@ -36,6 +36,7 @@ class Game:
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6),
             'lixo': load_images('colisao/'),
             'reciclavel': load_images('reciclaveis/'),
+            'placas': load_images('placas/'),
             'vida': load_image('vida/0.png')
         }
 
