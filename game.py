@@ -42,8 +42,10 @@ class Game:
                 self.itens_plastico = progresso.get('itens_plastico', 0)
                 self.itens_vidro = progresso.get('itens_vidro', 0)
                 self.itens_metal = progresso.get('itens_metal', 0)
-                self.quantidade_coletada_total = self.itens_papel + self.itens_plastico + self.itens_vidro + self.itens_metal
+                self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
+                                               self.itens_vidro + self.itens_metal)
                 print(f"📦 Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
+
             else:
                 self.vidas_inicial = 5
                 self.itens_papel = 0
@@ -163,7 +165,6 @@ class Game:
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
 
-        self.quantidade_coletada_total = 0
         self.reciclaveis_totais = []
         self.lixos_totais = []
 
