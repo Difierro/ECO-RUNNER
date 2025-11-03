@@ -2,6 +2,8 @@ import pygame
 import sys
 from scripts.utils import load_image
 from game import Game
+from scripts.database.connection import DatabaseConnection
+from scripts.database.user_DAO import UserDAO
 
 pygame.init()
 
@@ -91,6 +93,7 @@ class InputBox:
 
         pygame.draw.rect(screen, ACTIVE_COLOR if self.active else self.color, self.rect, 2)
 
+
 class Button:
     def __init__(self, text, x, y, w, h, callback):
         self.rect = pygame.Rect(x, y, w, h)
@@ -109,6 +112,7 @@ class Button:
         pygame.draw.rect(screen, color, self.rect, border_radius=6)
         text_surf = FONT.render(self.text, True, TEXT_COLOR)
         screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
+
 
 class AuthScreen:
     def __init__(self, title):
@@ -141,6 +145,7 @@ class AuthScreen:
     def event_loop(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                DatabaseConnection.close_all_connections()
                 pygame.quit()
                 sys.exit()
             for box in self.input_boxes:
@@ -158,7 +163,7 @@ class AuthScreen:
 
 
 class LoginScreen(AuthScreen):
-    usuarios_mock = {"eco_tester": "12345678"}  # simulação local
+    # usuarios_mock = {"eco_tester": "12345678"}  # simulação local
 
     def __init__(self):
         super().__init__("Login")
@@ -166,10 +171,8 @@ class LoginScreen(AuthScreen):
             Button("Entrar", 220, 310, 200, 40, self.login_action),
             Button("Cadastrar", 220, 360, 200, 40, self.open_register)
         ]
-
-    def verificar_login(self, nickname, senha):
-        # verificação para quando tiver o banco
-        return nickname in self.usuarios_mock and self.usuarios_mock[nickname] == senha
+        # Inicializa conexão com banco de dados
+        DatabaseConnection.initialize_pool()
 
     def login_action(self):
         nickname = self.nickname_box.text.strip()
@@ -179,14 +182,46 @@ class LoginScreen(AuthScreen):
             self.set_feedback("Preencha todos os campos.")
             return
 
-        if self.verificar_login(nickname, senha):
+        # Usa DAO para verificar login no banco de dados
+        sucesso, resultado = UserDAO.verificar_login(nickname, senha)
+        
+        if sucesso:
             self.set_feedback("Login realizado com sucesso!", success=True)
             pygame.time.wait(1000)
-            Game().run()
+            # Passa dados do usuário para o jogo
+            self.running = False
+            Game(usuario_dados=resultado).run()
         else:
-            self.set_feedback("Usuário ou senha inválidos.")
+            self.set_feedback(resultado)  # Mostra mensagem de erro do DAO
+
+    # def __init__(self):
+    #     super().__init__("Login")
+    #     self.buttons = [
+    #         Button("Entrar", 220, 310, 200, 40, self.login_action),
+    #         Button("Cadastrar", 220, 360, 200, 40, self.open_register)
+    #     ]
+
+    # def verificar_login(self, nickname, senha):
+    #     # verificação para quando tiver o banco
+    #     return nickname in self.usuarios_mock and self.usuarios_mock[nickname] == senha
+
+    # def login_action(self):
+    #     nickname = self.nickname_box.text.strip()
+    #     senha = self.password_box.text.strip()
+
+    #     if not nickname or not senha:
+    #         self.set_feedback("Preencha todos os campos.")
+    #         return
+
+    #     if self.verificar_login(nickname, senha):
+    #         self.set_feedback("Login realizado com sucesso!", success=True)
+    #         pygame.time.wait(1000)
+    #         Game().run()
+    #     else:
+    #         self.set_feedback("Usuário ou senha inválidos.")
 
     def open_register(self):
+        self.running = False
         RegisterScreen().main()
 
     def main(self):
@@ -200,7 +235,7 @@ class LoginScreen(AuthScreen):
 
 
 class RegisterScreen(AuthScreen):
-    usuarios_mock = {"eco_tester": "12345678"}  # simulação local
+    # usuarios_mock = {"eco_tester": "12345678"}  # simulação local
 
     def __init__(self):
         super().__init__("Cadastro")
@@ -209,30 +244,55 @@ class RegisterScreen(AuthScreen):
             Button("Voltar", 220, 360, 200, 40, self.voltar)
         ]
 
-    def registrar_usuario(self, nickname, senha):
-        # insert quando tiver o banco
-        self.usuarios_mock[nickname] = senha
-
     def cadastrar_action(self):
         nickname = self.nickname_box.text.strip()
         senha = self.password_box.text.strip()
 
+        # Validações básicas
         if len(nickname) < 3 or len(nickname) > 12:
-            self.set_feedback("Nickname deve ter 3 a 12 caracteres.")
+            self.set_feedback("Nickname: 3 a 12 caracteres.")
             return
+        
         if len(senha) < 8 or len(senha) > 64:
-            self.set_feedback("Senha deve ter 8 a 64 caracteres.")
-            return
-        if nickname in self.usuarios_mock:
-            self.set_feedback("Nome de usuário já existe.")
+            self.set_feedback("Senha: 8 a 64 caracteres.")
             return
 
-        self.registrar_usuario(nickname, senha)
-        self.set_feedback("Usuário cadastrado com sucesso!", success=True)
-        pygame.time.wait(1000)
-        self.voltar()
+        # Usa DAO para cadastrar no banco de dados
+        sucesso, mensagem = UserDAO.cadastrar_usuario(nickname, senha)
+        
+        if sucesso:
+            self.set_feedback(mensagem, success=True)
+            pygame.time.wait(1500)
+            self.voltar()
+        else:
+            self.set_feedback(mensagem)  # Mostra mensagem de erro do DAO
+
+    # def registrar_usuario(self, nickname, senha):
+    #     if nickname in self.usuarios_mock:
+    #         self.set_feedback("Nome de usuário já existe.")
+    #         return False
+    #     self.usuarios_mock[nickname] = senha
+    #     return True
+
+    # def cadastrar_action(self):
+    #     nickname = self.nickname_box.text.strip()
+    #     senha = self.password_box.text.strip()
+
+    #     if len(nickname) < 3 or len(nickname) > 12:
+    #         self.set_feedback("Nickname deve ter 3 a 12 caracteres.")
+    #         return
+        
+    #     if len(senha) < 8 or len(senha) > 64:
+    #         self.set_feedback("Senha deve ter 8 a 64 caracteres.")
+    #         return
+
+    #     if self.registrar_usuario(nickname, senha):
+    #         self.set_feedback("Cadastro realizado com sucesso!", success=True)
+    #         pygame.time.wait(1000)
+    #         self.voltar()
 
     def voltar(self):
+        self.running = False
         LoginScreen().main()
 
     def main(self):
@@ -243,6 +303,7 @@ class RegisterScreen(AuthScreen):
             self.draw_common()
             pygame.display.flip()
             clock.tick(30)
+
 
 if __name__ == "__main__":
     LoginScreen().main()
