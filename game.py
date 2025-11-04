@@ -55,7 +55,7 @@ class Game:
         self.quantidade_coletada_total = 0
 
         self.depurar = False
-
+        self.show_transition_screen('textos/logo.png', 2)
         self.load_level(self.level)
 
     def draw_text_hud(self, text, pos, color=(255, 255, 255), outline_color=(0, 0, 1)):
@@ -110,6 +110,7 @@ class Game:
         self.reciclaveis_totais = []
         self.lixos_totais = []
 
+        self.show_transition_screen(f'textos/level/{self.level}.png', 2)
         for loc in list(self.tilemap.tilemap):
             tile = self.tilemap.tilemap[loc]
             if tile['type'] == 'reciclavel':
@@ -134,7 +135,6 @@ class Game:
     def next_level(self):
         self.level += 1
         if self.level < self.max_level:
-            self.show_transition_screen(f'textos/level/{self.level}.png')
             self.load_level(self.level)
 
     def colide_lixo(self):
@@ -150,7 +150,7 @@ class Game:
                     self.tempo_imune_inicio = pygame.time.get_ticks()
                 if self.vidas <= 0:
                     self.vidas = 5
-                    grave_img = load_image('tiles/grave/grave.png')
+                    #grave_img = load_image('tiles/grave/grave.png')
                     self.display.blit(self.assets['background'], (0, 0))
                     self.tilemap.render(self.display, offset=(0,0))
                     self.clouds.render(self.display, offset=(0,0))
@@ -158,12 +158,12 @@ class Game:
                         lixo2.render(self.display, offset=(0,0))
                     for rec in self.reciclaveis_totais:
                         rec.render(self.display, offset=(0,0))
-                    self.display.blit(grave_img, self.player.pos)
+                    #self.display.blit(grave_img, self.player.pos)
                     self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
                     pygame.display.update()
-                    pygame.time.delay(3000)
+                    pygame.time.delay(1000)
+                    self.show_transition_screen('textos/game_over.png', duration=2.0)
                     self.load_level(self.level)
-                    self.show_transition_screen('textos/game_over.png', duration=1.0)
                     break
 
     def run(self):
@@ -195,8 +195,8 @@ class Game:
                 lixo.render(self.display, offset=render_scroll)
 
             if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
-                self.next_level()
-
+                self.show_transition_screen('textos/logo.png', 15)
+                
             self.player.colide_lixo(self)
             self.colide_lixo()
 
