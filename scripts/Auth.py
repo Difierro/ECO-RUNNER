@@ -5,7 +5,7 @@ from game import Game
 
 pygame.init()
 
-WIDTH, HEIGHT = 640, 480
+WIDTH, HEIGHT = 640 * 2, 480* 2
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Eco Runner - Autenticação")
 
@@ -17,12 +17,16 @@ INPUT_COLOR = (50, 100, 50)
 ACTIVE_COLOR = (80, 160, 80)
 BUTTON_COLOR = (70, 130, 70)
 BUTTON_HOVER = (90, 160, 90)
-FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
-SMALL_FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 13)
+
+FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(HEIGHT * 0.033))
+SMALL_FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(HEIGHT * 0.027))
 
 logo = load_image('textos/logo.png')
-scale = 0.12
-logo = pygame.transform.smoothscale(logo, (int(logo.get_width() * scale), int(logo.get_height() * scale)))
+logo_scale = WIDTH / 640 * 0.12  
+logo = pygame.transform.smoothscale(
+    logo, (int(logo.get_width() * logo_scale), int(logo.get_height() * logo_scale))
+)
+
 
 class InputBox:
     def __init__(self, x, y, w, h, text='', password=False):
@@ -91,6 +95,7 @@ class InputBox:
 
         pygame.draw.rect(screen, ACTIVE_COLOR if self.active else self.color, self.rect, 2)
 
+
 class Button:
     def __init__(self, text, x, y, w, h, callback):
         self.rect = pygame.Rect(x, y, w, h)
@@ -113,8 +118,14 @@ class Button:
 class AuthScreen:
     def __init__(self, title):
         self.title = title
-        self.nickname_box = InputBox(240, 180, 200, 40)
-        self.password_box = InputBox(240, 240, 200, 40, password=True)
+
+        input_w, input_h = WIDTH * 0.31, HEIGHT * 0.083
+        input_x = WIDTH * 0.375
+        nickname_y = HEIGHT * 0.375
+        senha_y = HEIGHT * 0.5
+
+        self.nickname_box = InputBox(input_x, nickname_y, input_w, input_h)
+        self.password_box = InputBox(input_x, senha_y, input_w, input_h, password=True)
         self.input_boxes = [self.nickname_box, self.password_box]
         self.buttons = []
         self.running = True
@@ -123,11 +134,11 @@ class AuthScreen:
 
     def draw_common(self):
         SCREEN.fill(BG_COLOR)
-        SCREEN.blit(logo, (20, 20))
+        SCREEN.blit(logo, (WIDTH * 0.03, HEIGHT * 0.03))
         title_text = FONT.render(self.title, True, TEXT_COLOR)
-        SCREEN.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 120))
-        SCREEN.blit(SMALL_FONT.render("Nickname:", True, TEXT_COLOR), (120, 190))
-        SCREEN.blit(SMALL_FONT.render("Senha:", True, TEXT_COLOR), (120, 250))
+        SCREEN.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT * 0.25))
+        SCREEN.blit(SMALL_FONT.render("Nickname:", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.395))
+        SCREEN.blit(SMALL_FONT.render("Senha:", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.52))
 
         for box in self.input_boxes:
             box.draw(SCREEN)
@@ -136,7 +147,7 @@ class AuthScreen:
 
         if self.feedback:
             feedback_text = SMALL_FONT.render(self.feedback, True, self.feedback_color)
-            SCREEN.blit(feedback_text, (WIDTH // 2 - feedback_text.get_width() // 2, 420))
+            SCREEN.blit(feedback_text, (WIDTH // 2 - feedback_text.get_width() // 2, HEIGHT * 0.875))
 
     def event_loop(self):
         for event in pygame.event.get():
@@ -156,19 +167,22 @@ class AuthScreen:
         self.feedback = text
         self.feedback_color = SUCCESS_COLOR if success else ERROR_COLOR
 
-
 class LoginScreen(AuthScreen):
-    usuarios_mock = {"eco_tester": "12345678"}  # simulação local
+    usuarios_mock = {"eco_tester": "12345678"}
 
     def __init__(self):
         super().__init__("Login")
+
+        button_w, button_h = WIDTH * 0.31, HEIGHT * 0.083
+        btn_x = WIDTH * 0.34
+        btn_y = HEIGHT * 0.645
+
         self.buttons = [
-            Button("Entrar", 220, 310, 200, 40, self.login_action),
-            Button("Cadastrar", 220, 360, 200, 40, self.open_register)
+            Button("Entrar", btn_x, btn_y, button_w, button_h, self.login_action),
+            Button("Cadastrar", btn_x, btn_y + HEIGHT * 0.1, button_w, button_h, self.open_register)
         ]
 
     def verificar_login(self, nickname, senha):
-        # verificação para quando tiver o banco
         return nickname in self.usuarios_mock and self.usuarios_mock[nickname] == senha
 
     def login_action(self):
@@ -200,17 +214,21 @@ class LoginScreen(AuthScreen):
 
 
 class RegisterScreen(AuthScreen):
-    usuarios_mock = {"eco_tester": "12345678"}  # simulação local
+    usuarios_mock = {"eco_tester": "12345678"}
 
     def __init__(self):
         super().__init__("Cadastro")
+
+        button_w, button_h = WIDTH * 0.31, HEIGHT * 0.083
+        btn_x = WIDTH * 0.34
+        btn_y = HEIGHT * 0.645
+
         self.buttons = [
-            Button("Cadastrar", 220, 310, 200, 40, self.cadastrar_action),
-            Button("Voltar", 220, 360, 200, 40, self.voltar)
+            Button("Cadastrar", btn_x, btn_y, button_w, button_h, self.cadastrar_action),
+            Button("Voltar", btn_x, btn_y + HEIGHT * 0.1, button_w, button_h, self.voltar)
         ]
 
     def registrar_usuario(self, nickname, senha):
-        # insert quando tiver o banco
         self.usuarios_mock[nickname] = senha
 
     def cadastrar_action(self):

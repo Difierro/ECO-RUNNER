@@ -11,8 +11,8 @@ import time
 class Game:
     def __init__(self):
         pygame.init()
-        width = 640
-        heigth = 480
+        width = 640*2
+        heigth = 480*2
         pygame.display.set_caption("ECO RUNNER")
         self.screen = pygame.display.set_mode((width, heigth))
         self.display = pygame.Surface((320, 240))
@@ -52,7 +52,7 @@ class Game:
         self.reciclaveis_por_fase = 20
         self.reciclaveis_totais = []
         self.lixos_totais = []
-        self.quantidade_coletada_total = 15
+        self.quantidade_coletada_total = 0
 
         self.depurar = False
 
@@ -107,7 +107,6 @@ class Game:
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
 
-        self.quantidade_coletada_total = 0
         self.reciclaveis_totais = []
         self.lixos_totais = []
 
