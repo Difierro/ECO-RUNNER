@@ -11,7 +11,7 @@ import time
 
 
 # Variável global para contagem de recicláveis (compatibilidade)
-qtd_reciclaveis = 0
+quantidade_coletada_total = 0
 
 class Game:
     def __init__(self, usuario_dados=None):
@@ -24,34 +24,35 @@ class Game:
         """
         pygame.init()
         
-        # ==================== DADOS DO USUÁRIO ====================
         self.usuario_dados = usuario_dados
         self.user_id = None
         self.nickname = "Jogador"
-        
+        self.level=0
+        self.quantidade_coletada_total = 15
         if usuario_dados:
             self.user_id = usuario_dados.get('id')
             self.nickname = usuario_dados.get('nickname', 'Jogador')
             print(f"🎮 Bem-vindo ao Eco Runner, {self.nickname}! (ID: {self.user_id})")
-            
-            # ==================== CARREGAR PROGRESSO DO BANCO ====================
-            progresso = GameDAO.carregar_progresso_fase1(self.user_id)
-            if progresso:
-                self.vidas_inicial = progresso.get('vidas', 5)
-                self.itens_papel = progresso.get('itens_papel', 0)
-                self.itens_plastico = progresso.get('itens_plastico', 0)
-                self.itens_vidro = progresso.get('itens_vidro', 0)
-                self.itens_metal = progresso.get('itens_metal', 0)
-                self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
-                                               self.itens_vidro + self.itens_metal)
-                print(f"📦 Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
 
-            else:
-                self.vidas_inicial = 5
-                self.itens_papel = 0
-                self.itens_plastico = 0
-                self.itens_vidro = 0
-                self.itens_metal = 0
+            if(usuario_dados.get('fase1_completa')):
+                self.level = 0
+                progresso = GameDAO.carregar_progresso_fase1(self.user_id)
+                if progresso:
+                    self.vidas_inicial = progresso.get('vidas', 5)
+                    self.itens_papel = progresso.get('itens_papel', 0)
+                    self.itens_plastico = progresso.get('itens_plastico', 0)
+                    self.itens_vidro = progresso.get('itens_vidro', 0)
+                    self.itens_metal = progresso.get('itens_metal', 0)
+                    self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
+                                                self.itens_vidro + self.itens_metal)
+                    print(f"📦 Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
+
+                else:
+                    self.vidas_inicial = 5
+                    self.itens_papel = 0
+                    self.itens_plastico = 0
+                    self.itens_vidro = 0
+                    self.itens_metal = 0
         else:
             print("🎮 Modo offline - progresso não será salvo")
             self.vidas_inicial = 5
@@ -59,8 +60,7 @@ class Game:
             self.itens_plastico = 0
             self.itens_vidro = 0
             self.itens_metal = 0
-        
-        # ==================== CONFIGURAÇÕES DA JANELA ====================
+    
         width = 640
         heigth = 480
         pygame.display.set_caption("ECO RUNNER")
@@ -99,7 +99,7 @@ class Game:
         self.tilemap = Tilemap(self, tile_size=16)
 
         # ==================== CONFIGURAÇÕES DO JOGO ====================
-        self.level = 0
+
         self.max_level = 2
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
@@ -108,7 +108,6 @@ class Game:
         self.reciclaveis_totais = []
         self.lixos_totais = []
         
-
         self.depurar = False
 
         self.load_level(self.level)
@@ -167,30 +166,31 @@ class Game:
 
         self.reciclaveis_totais = []
         self.lixos_totais = []
+        if(map_id == 0):
 
-        # Carrega recicláveis e lixos do mapa
-        for loc in list(self.tilemap.tilemap):
-            tile = self.tilemap.tilemap[loc]
-            if tile['type'] == 'reciclavel':
-                pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
-                rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
-                print(f"🔄 Reciclável carregado: Variante {tile['variant']} na posição {pos}")
-                rec.tile_data = tile
-                self.reciclaveis_totais.append(rec)
-                del self.tilemap.tilemap[loc]
-            elif tile['type'] == 'lixo':
-                pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
-                img = random.choice(self.assets['lixo'])
-                lixo = Lixo(self, pos, (16,16), img)
-                self.lixos_totais.append(lixo)
-                del self.tilemap.tilemap[loc]
+            # Carrega recicláveis e lixos do mapa
+            for loc in list(self.tilemap.tilemap):
+                tile = self.tilemap.tilemap[loc]
+                if tile['type'] == 'reciclavel':
+                    pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
+                    rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
+                    print(f"🔄 Reciclável carregado: Variante {tile['variant']} na posição {pos}")
+                    rec.tile_data = tile
+                    self.reciclaveis_totais.append(rec)
+                    del self.tilemap.tilemap[loc]
+                elif tile['type'] == 'lixo':
+                    pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
+                    img = random.choice(self.assets['lixo'])
+                    lixo = Lixo(self, pos, (16,16), img)
+                    self.lixos_totais.append(lixo)
+                    del self.tilemap.tilemap[loc]
 
-        # Define quais recicláveis aparecem nesta fase
-        faltam = max(self.reciclaveis_por_fase - self.quantidade_coletada_total, 0)
-        for rec in self.reciclaveis_totais:
-            rec.tile_data['aparece'] = False
-        for rec in random.sample(self.reciclaveis_totais, min(faltam, len(self.reciclaveis_totais))):
-            rec.tile_data['aparece'] = True
+            # Define quais recicláveis aparecem nesta fase
+            faltam = max(self.reciclaveis_por_fase - self.quantidade_coletada_total, 0)
+            for rec in self.reciclaveis_totais:
+                rec.tile_data['aparece'] = False
+            for rec in random.sample(self.reciclaveis_totais, min(faltam, len(self.reciclaveis_totais))):
+                rec.tile_data['aparece'] = True
 
     def coletar_item(self, tipo_item):
         """
@@ -210,33 +210,22 @@ class Game:
             self.itens_vidro += 1
         elif tipo_item == 'metal':
             self.itens_metal += 1
-        
-        # ==================== SALVAR NO BANCO ====================
-        if self.user_id:
-            try:
-                sucesso, quantidade = GameDAO.adicionar_item_fase1(self.user_id, tipo_item)
-                if sucesso:
-                    print(f"✅ Item {tipo_item} salvo no banco! Total: {quantidade}")
-                else:
-                    print(f"⚠️ Limite de {tipo_item} atingido (5/5)")
-            except Exception as e:
-                print(f"❌ Erro ao salvar item: {e}")
 
     def next_level(self):
         """Avança para a próxima fase."""
+        #primeiro salva a fase completa, depois muda fase
+        self.salvar_progresso_fase_completa(self.level)
         self.level += 1
         if self.level < self.max_level:
             self.show_transition_screen(f'textos/level/{self.level}.png')
             self.load_level(self.level)
-        else:
-            # Completou todas as fases
-            self.salvar_progresso_fase_completa()
+            
 
-    def salvar_progresso_fase_completa(self):
+    def salvar_progresso_fase_completa(self, level):
         """Salva no banco quando completa a fase."""
-        if self.user_id:
+        if level == 0: #salva progresso fase1
             try:
-                GameDAO.marcar_fase1_completa(self.user_id)
+                GameDAO.salvar_progresso_fase1(self.user_id,self.itens_papel,self.itens_plastico,self.itens_vidro, self.itens_metal,self.vidas, True)
                 print("✅ Fase 1 completa salva no banco!")
             except Exception as e:
                 print(f"⚠️ Erro ao salvar progresso: {e}")
@@ -254,34 +243,13 @@ class Game:
                     self.tempo_imune_ativo = True
                     self.tempo_imune_inicio = pygame.time.get_ticks()
                     
-                    # ==================== SALVAR VIDA NO BANCO ====================
-                    if self.user_id:
-                        try:
-                            sucesso, vidas_restantes, game_over = GameDAO.reduzir_vida_fase1(self.user_id)
-                            if sucesso:
-                                print(f"💔 Vida reduzida! Vidas restantes: {vidas_restantes}")
-                                if game_over:
-                                    print("☠️ Game Over registrado no banco")
-                        except Exception as e:
-                            print(f"❌ Erro ao salvar vida: {e}")
-                    
+    
                 if self.vidas <= 0:
                     self.game_over()
                     break
 
     def game_over(self):
         """Executa lógica de game over."""
-        # ==================== SALVAR GAME OVER NO BANCO ====================
-        if self.user_id:
-            try:
-                GameDAO.salvar_progresso_fase1(
-                    self.user_id,
-                    vidas=0,
-                    game_over=True
-                )
-                print("☠️ Game Over salvo no banco")
-            except Exception as e:
-                print(f"❌ Erro ao salvar game over: {e}")
         
         self.vidas = 5
         grave_img = load_image('tiles/grave/grave.png')
@@ -296,12 +264,13 @@ class Game:
         self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
         pygame.display.update()
         pygame.time.delay(3000)
+        GameDAO.salvar_progresso_fase1(self.user_id,self.itens_papel,self.itens_plastico,self.itens_vidro, self.itens_metal,self.vidas, True)
         self.load_level(self.level)
         self.show_transition_screen('textos/game_over.png', duration=1.0)
 
     def salvar_progresso_ao_sair(self):
         """Salva o progresso atual ao fechar o jogo."""
-        if self.user_id:
+        if self.level == 0:
             try:
                 GameDAO.salvar_progresso_fase1(
                     self.user_id,
@@ -390,9 +359,6 @@ class Game:
             # Mostra nickname e itens coletados
             if self.nickname != "Jogador":
                 self.draw_text_hud(f"{self.nickname}", pos=(10, 450), color=(150, 255, 150))
-                # Mostra progresso por tipo (opcional)
-                # self.draw_text_hud(f"P:{self.itens_papel} PL:{self.itens_plastico} V:{self.itens_vidro} M:{self.itens_metal}", 
-                #                   pos=(450, 450), color=(200, 200, 255))
 
             pygame.display.update()
             self.clock.tick(60)

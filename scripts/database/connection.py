@@ -17,15 +17,15 @@ class DatabaseConnection:
         if cls._connection_pool is None:
             try:
                 cls._connection_pool = pool.SimpleConnectionPool(
-                    1,  # minconn
-                    10, # maxconn
+                    1,
+                    10,
                     host=os.getenv('DB_HOST'),
                     port=os.getenv('DB_PORT'),
                     database=os.getenv('DB_NAME'),
                     user=os.getenv('DB_USER'),
                     password=os.getenv('DB_PASSWORD')
                 )
-                print("✅ Pool de conexões criado com sucesso")
+                print("Pool de conexões criado com sucesso")
             except psycopg2.Error as e:
                 print(f"Erro ao criar pool de conexões: {e}")
                 raise

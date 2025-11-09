@@ -110,7 +110,7 @@ class GameDAO:
                 DatabaseConnection.return_connection(connection)
     
     @staticmethod
-    def adicionar_item_fase1(user_id, tipo_item):
+    def adicionar_item_fase1(user_id, tipo_item):#remover
         """
         Adiciona um item coletado na Fase 1.
         
@@ -166,7 +166,7 @@ class GameDAO:
                 DatabaseConnection.return_connection(connection)
     
     @staticmethod
-    def reduzir_vida_fase1(user_id):
+    def reduzir_vida_fase1(user_id):#Remover
         """
         Reduz uma vida na Fase 1.
         

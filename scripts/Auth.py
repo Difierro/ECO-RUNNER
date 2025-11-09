@@ -194,32 +194,6 @@ class LoginScreen(AuthScreen):
         else:
             self.set_feedback(resultado)  # Mostra mensagem de erro do DAO
 
-    # def __init__(self):
-    #     super().__init__("Login")
-    #     self.buttons = [
-    #         Button("Entrar", 220, 310, 200, 40, self.login_action),
-    #         Button("Cadastrar", 220, 360, 200, 40, self.open_register)
-    #     ]
-
-    # def verificar_login(self, nickname, senha):
-    #     # verificação para quando tiver o banco
-    #     return nickname in self.usuarios_mock and self.usuarios_mock[nickname] == senha
-
-    # def login_action(self):
-    #     nickname = self.nickname_box.text.strip()
-    #     senha = self.password_box.text.strip()
-
-    #     if not nickname or not senha:
-    #         self.set_feedback("Preencha todos os campos.")
-    #         return
-
-    #     if self.verificar_login(nickname, senha):
-    #         self.set_feedback("Login realizado com sucesso!", success=True)
-    #         pygame.time.wait(1000)
-    #         Game().run()
-    #     else:
-    #         self.set_feedback("Usuário ou senha inválidos.")
-
     def open_register(self):
         self.running = False
         RegisterScreen().main()
@@ -266,30 +240,6 @@ class RegisterScreen(AuthScreen):
             self.voltar()
         else:
             self.set_feedback(mensagem)  # Mostra mensagem de erro do DAO
-
-    # def registrar_usuario(self, nickname, senha):
-    #     if nickname in self.usuarios_mock:
-    #         self.set_feedback("Nome de usuário já existe.")
-    #         return False
-    #     self.usuarios_mock[nickname] = senha
-    #     return True
-
-    # def cadastrar_action(self):
-    #     nickname = self.nickname_box.text.strip()
-    #     senha = self.password_box.text.strip()
-
-    #     if len(nickname) < 3 or len(nickname) > 12:
-    #         self.set_feedback("Nickname deve ter 3 a 12 caracteres.")
-    #         return
-        
-    #     if len(senha) < 8 or len(senha) > 64:
-    #         self.set_feedback("Senha deve ter 8 a 64 caracteres.")
-    #         return
-
-    #     if self.registrar_usuario(nickname, senha):
-    #         self.set_feedback("Cadastro realizado com sucesso!", success=True)
-    #         pygame.time.wait(1000)
-    #         self.voltar()
 
     def voltar(self):
         self.running = False

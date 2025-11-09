@@ -167,8 +167,8 @@ class UserDAO:
                 'fase1_completa': fase1_completa or False,
                 'fase2_completa': fase2_completa or False,
                 'fase3_completa': fase3_completa or False,
-                'vidas': vidas_fase1 or 5,
-                'game_over': game_over_fase1 or False
+                'vidas': vidas_fase1 or 5,#ver se precisa
+                'game_over': game_over_fase1 or False #ver se precisa
             }
             
             print(f"✅ Login bem-sucedido: {nickname_db}")
@@ -183,7 +183,7 @@ class UserDAO:
                 DatabaseConnection.return_connection(connection)
     
     @staticmethod
-    def obter_progresso_completo(user_id):
+    def obter_progresso_completo(user_id):#ver necessidade
         """
         Obtém o progresso completo do usuário em todas as fases.
         
