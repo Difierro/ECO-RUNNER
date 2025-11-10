@@ -34,7 +34,7 @@ class Game:
             self.nickname = usuario_dados.get('nickname', 'Jogador')
             print(f"🎮 Bem-vindo ao Eco Runner, {self.nickname}! (ID: {self.user_id})")
 
-            if(usuario_dados.get('fase1_completa')):
+            if(not usuario_dados.get('fase1_completa')):
                 self.level = 0
                 progresso = GameDAO.carregar_progresso_fase1(self.user_id)
                 if progresso:
@@ -264,8 +264,6 @@ class Game:
         self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
         pygame.display.update()
         pygame.time.delay(3000)
-        GameDAO.salvar_progresso_fase1(self.user_id,self.itens_papel,self.itens_plastico,self.itens_vidro, self.itens_metal,self.vidas, True)
-        self.load_level(self.level)
         self.show_transition_screen('textos/game_over.png', duration=1.0)
 
     def salvar_progresso_ao_sair(self):
