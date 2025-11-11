@@ -164,29 +164,30 @@ class Player(PhysiscsEntitiy):
     def _get_tipo_item(self, variant):
         """
         Mapeia o variant do reciclável para o tipo no banco de dados.
-        Ajuste os números conforme seus assets.
+        20 itens no total: 5 de cada tipo (papel, plástico, vidro, metal).
         
         Args:
-            variant (int): Índice do sprite do reciclável
+            variant (int): Índice do sprite do reciclável (0-19)
             
         Returns:
             str: Tipo do item ('papel', 'plastico', 'vidro', 'metal')
         """
-        # Mapeamento baseado nos assets/reciclaveis/
-        # ⚠️ AJUSTE CONFORME A ORDEM DOS SEUS ARQUIVOS
+        # Mapeamento completo para 20 recicláveis (5 de cada tipo)
+        # ⚠️ AJUSTE conforme a ordem dos arquivos em assets/reciclaveis/
         tipos_map = {
-            0: 'papel',      # 0.png = papel
-            1: 'papel',      # 1.png = papel
-            2: 'plastico',   # 2.png = plástico
-            3: 'plastico',   # 3.png = plástico
-            4: 'vidro',      # 4.png = vidro
-            5: 'vidro',      # 5.png = vidro
-            6: 'metal',      # 6.png = metal
-            7: 'metal',      # 7.png = metal
+            # Papel (5 itens)
+            0: 'papel',  1: 'papel',  2: 'papel',  3: 'papel',  4: 'papel',
+            # Plástico (5 itens)
+            5: 'plastico',  6: 'plastico',  7: 'plastico',  8: 'plastico',  9: 'plastico',
+            # Vidro (5 itens)
+            10: 'vidro', 11: 'vidro', 12: 'vidro', 13: 'vidro', 14: 'vidro',
+            # Metal (5 itens)
+            15: 'metal', 16: 'metal', 17: 'metal', 18: 'metal', 19: 'metal',
         }
         
-        # Retorna o tipo ou 'papel' como padrão
-        return tipos_map.get(variant, 'papel')
+        tipo = tipos_map.get(variant, 'papel')
+        print(f"🔍 Debug: Variant {variant} → Tipo '{tipo}'")  # Log para debug
+        return tipo
 
     def render(self, surf, offset=(0, 0)):
         """Renderiza o player com efeito de imunidade (piscar)."""
