@@ -1,5 +1,4 @@
 import pygame
-#import game
 from scripts.utils import load_image
 
 class PhysiscsEntitiy:
@@ -73,8 +72,8 @@ class PhysiscsEntitiy:
     
     def render(self, surf, offset=(0, 0)):
         sprite_pos = (
-        self.pos[0] - offset[0] - 3,
-        self.pos[1] - offset[1]
+            self.pos[0] - offset[0] - 3,
+            self.pos[1] - offset[1]
         )
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), sprite_pos)
 
@@ -93,12 +92,12 @@ class Player(PhysiscsEntitiy):
             self.air_time = 0
             self.jumps = 2
 
-        #se tiver animação para pular
-        #if self.air_time > 4:
-        #    self.set_action('pula')
+        # Se tiver animação para pular
+        # if self.air_time > 4:
+        #     self.set_action('pula')
         
         if movement[0] != 0:
-           self.set_action('anda')
+            self.set_action('anda')
         else:
             self.set_action('parada')
             
@@ -109,6 +108,10 @@ class Player(PhysiscsEntitiy):
             self.air_time = 5
             
     def colide_lixo(self, game):
+        """
+        Verifica colisão com lixo radioativo.
+        A lógica de reduzir vida está no game.py (método colide_lixo).
+        """
         tempo_atual = pygame.time.get_ticks()
         colidiu = False
 
@@ -117,9 +120,6 @@ class Player(PhysiscsEntitiy):
                 colidiu = True
                 if not game.tempo_imune_ativo:
                     print("Colidiu com lixo radioativo!")
-                    game.vidas -= 1
-                    game.tempo_imune_ativo = True
-                    game.tempo_imune_inicio = tempo_atual
                 else:
                     print("Imune...")
                     self.velocity[1] = -3
@@ -137,22 +137,55 @@ class Player(PhysiscsEntitiy):
         return colidiu
     
     def coleta_reciclavel(self, game, rec):
+        """
+        Coleta item reciclável e salva no banco de dados.
+        Agora usa game.coletar_item() que integra com GameDAO.
+        """
         rec_rect = rec.rect()
         player_rect = game.player.rect()
-        
-        # retangulo para depurar
-        #pygame.draw.rect(self.display, (0,255,0), (rec_rect.x - self.scroll[0], rec_rect.y - self.scroll[1], rec_rect.width, rec_rect.height), 1)
-        #pygame.draw.rect(self.display, (255,0,0), (player_rect.x - self.scroll[0], player_rect.y - self.scroll[1], player_rect.width, player_rect.height), 1)
         
         if rec.tile_data.get('aparece', True) and not rec.collected:
             if player_rect.colliderect(rec_rect):
                 game.item_collected.play()
                 rec.collect()
-                game.quantidade_coletada_total += 1
-                print(f"Reciclável coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
+                
+                tipo_item = self._get_tipo_item(rec.variant)
+                game.coletar_item(tipo_item)
+                
+                print(f"Reciclavel {tipo_item} coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
+
+    def _get_tipo_item(self, variant):
+        """
+        Mapeia o variant do reciclável para o tipo no banco de dados.
+        20 itens no total: 5 de cada tipo (papel, plástico, vidro, metal).
+        
+        Args:
+            variant (int): Índice do sprite do reciclável (0-19)
+            
+        Returns:
+            str: Tipo do item ('papel', 'plastico', 'vidro', 'metal')
+        """
+        # Mapeamento completo para 20 recicláveis (5 de cada tipo)
+        # ⚠️ AJUSTE conforme a ordem dos arquivos em assets/reciclaveis/
+        tipos_map = {
+            # Papel (5 itens)
+            0: 'papel',  1: 'papel',  2: 'papel',  3: 'papel',  4: 'papel',
+            # Plástico (5 itens)
+            5: 'plastico',  6: 'plastico',  7: 'plastico',  8: 'plastico',  9: 'plastico',
+            # Vidro (5 itens)
+            10: 'vidro', 11: 'vidro', 12: 'vidro', 13: 'vidro', 14: 'vidro',
+            # Metal (5 itens)
+            15: 'metal', 16: 'metal', 17: 'metal', 18: 'metal', 19: 'metal',
+        }
+        
+        tipo = tipos_map.get(variant, 'papel')
+        return tipo
 
     def render(self, surf, offset=(0, 0)):
+        """Renderiza o player com efeito de imunidade (piscar)."""
         sprite = pygame.transform.flip(self.animation.img(), self.flip, False).copy()
+        
+        # Efeito de piscar durante imunidade
         if self.game.tempo_imune_ativo:
             tempo_passado = pygame.time.get_ticks() - self.game.tempo_imune_inicio
             if ((tempo_passado // 150) % 2) == 0:
@@ -161,11 +194,13 @@ class Player(PhysiscsEntitiy):
                 sprite.set_alpha(255)
         else:
             sprite.set_alpha(255)
+        
         sprite_pos = (
             self.pos[0] - offset[0] - 3,
             self.pos[1] - offset[1]
         )
         surf.blit(sprite, sprite_pos)
+
 
 class Reciclavel(PhysiscsEntitiy):
     def __init__(self, game, pos, size, variant=0):
@@ -176,14 +211,17 @@ class Reciclavel(PhysiscsEntitiy):
         self.img = self.game.assets['reciclavel'][self.variant]
 
     def collect(self):
+        """Marca o reciclável como coletado."""
         self.collected = True
 
     def render(self, surf, offset=(0, 0)):
+        """Renderiza o reciclável apenas se deve aparecer e não foi coletado."""
         deve_aparecer = self.tile_data.get('aparece', True)
         foi_coletado = self.collected
 
         if deve_aparecer and not foi_coletado:
             surf.blit(self.img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+
 
 class Lixo:
     def __init__(self, game, pos, size, img):
@@ -194,4 +232,5 @@ class Lixo:
         self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
 
     def render(self, surface, offset=(0,0)):
+        """Renderiza o lixo radioativo."""
         surface.blit(self.image, (self.pos[0]-offset[0], self.pos[1]-offset[1]))
