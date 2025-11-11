@@ -28,12 +28,11 @@ class Game:
         self.user_id = None
         self.nickname = "Jogador"
         self.level=0
-        self.quantidade_coletada_total = 15
-        if usuario_dados:
+        self.quantidade_coletada_total = 0
+        if self.usuario_dados:
             self.user_id = usuario_dados.get('id')
             self.nickname = usuario_dados.get('nickname', 'Jogador')
-            print(f"🎮 Bem-vindo ao Eco Runner, {self.nickname}! (ID: {self.user_id})")
-
+            print(f"Player: {self.nickname} (ID: {self.user_id})")
             if(not usuario_dados.get('fase1_completa')):
                 self.level = 0
                 progresso = GameDAO.carregar_progresso_fase1(self.user_id)
@@ -45,16 +44,14 @@ class Game:
                     self.itens_metal = progresso.get('itens_metal', 0)
                     self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
                                                 self.itens_vidro + self.itens_metal)
-                    print(f"📦 Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
+                    #print(f"Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
 
-                else:
-                    self.vidas_inicial = 5
-                    self.itens_papel = 0
-                    self.itens_plastico = 0
-                    self.itens_vidro = 0
-                    self.itens_metal = 0
+            else:
+                self.level = 1
+                
+                self.vidas_inicial = 5
         else:
-            print("🎮 Modo offline - progresso não será salvo")
+            print("modo offline - progresso nao sera salvo")
             self.vidas_inicial = 5
             self.itens_papel = 0
             self.itens_plastico = 0
@@ -73,9 +70,11 @@ class Game:
         # ==================== SONS ====================
         self.music = pygame.mixer.music.load("assets/sounds/background.mp3")
         pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(0.05)
         self.jump_sound = pygame.mixer.Sound('assets/sounds/jump.mp3')
         self.item_collected = pygame.mixer.Sound('assets/sounds/collect.mp3')
+        self.jump_sound.set_volume(0.1)
+        self.item_collected.set_volume(0.1)
 
         # ==================== ASSETS ====================
         self.assets = {
@@ -174,7 +173,6 @@ class Game:
                 if tile['type'] == 'reciclavel':
                     pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
                     rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
-                    print(f"🔄 Reciclável carregado: Variante {tile['variant']} na posição {pos}")
                     rec.tile_data = tile
                     self.reciclaveis_totais.append(rec)
                     del self.tilemap.tilemap[loc]
@@ -226,9 +224,8 @@ class Game:
         if level == 0: #salva progresso fase1
             try:
                 GameDAO.salvar_progresso_fase1(self.user_id,self.itens_papel,self.itens_plastico,self.itens_vidro, self.itens_metal,self.vidas, True)
-                print("✅ Fase 1 completa salva no banco!")
             except Exception as e:
-                print(f"⚠️ Erro ao salvar progresso: {e}")
+                print(f"erro ao salvar progresso: {e}")
 
     def colide_lixo(self):
         """Verifica colisão com lixo e reduz vidas."""
@@ -279,9 +276,8 @@ class Game:
                     vidas=self.vidas,
                     fase_completa=False
                 )
-                print(f"💾 Progresso salvo: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas}")
             except Exception as e:
-                print(f"❌ Erro ao salvar progresso: {e}")
+                print(f"erro ao salvar progresso: {e}")
 
     def run(self):
         """Loop principal do jogo."""

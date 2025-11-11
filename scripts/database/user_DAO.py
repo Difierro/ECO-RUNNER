@@ -94,7 +94,7 @@ class UserDAO:
             )
             
             connection.commit()
-            print(f"✅ Usuário '{nickname}' cadastrado com sucesso!")
+            print(f"Usuário '{nickname}' cadastrado com sucesso!")
             return True, "Usuário cadastrado com sucesso"
             
         except psycopg2.IntegrityError:
@@ -171,7 +171,7 @@ class UserDAO:
                 'game_over': game_over_fase1 or False #ver se precisa
             }
             
-            print(f"✅ Login bem-sucedido: {nickname_db}")
+            print(f"Login bem-sucedido: {nickname_db}")
             return True, dados_usuario
             
         except psycopg2.Error as e:

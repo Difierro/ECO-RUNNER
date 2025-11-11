@@ -149,10 +149,6 @@ class GameDAO:
             
             connection.commit()
             
-            # Se fase foi completada, trigger vai restaurar vidas automaticamente
-            if fase_completa:
-                print("✅ Fase 2 completada! Vidas restauradas automaticamente pelo trigger.")
-            
             return True
             
         except psycopg2.Error as e:
@@ -404,7 +400,7 @@ class GameDAO:
             )
             
             connection.commit()
-            print("✅ Progresso resetado com sucesso!")
+            print("Progresso resetado com sucesso!")
             return True
             
         except psycopg2.Error as e:

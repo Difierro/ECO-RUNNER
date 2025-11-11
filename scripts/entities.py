@@ -120,7 +120,6 @@ class Player(PhysiscsEntitiy):
                 colidiu = True
                 if not game.tempo_imune_ativo:
                     print("Colidiu com lixo radioativo!")
-                    # A redução de vida e salvamento no banco é feita no game.py
                 else:
                     print("Imune...")
                     self.velocity[1] = -3
@@ -145,21 +144,15 @@ class Player(PhysiscsEntitiy):
         rec_rect = rec.rect()
         player_rect = game.player.rect()
         
-        # Retângulo para depurar (descomente se precisar ver hitboxes)
-        # pygame.draw.rect(game.display, (0,255,0), (rec_rect.x - game.scroll[0], rec_rect.y - game.scroll[1], rec_rect.width, rec_rect.height), 1)
-        # pygame.draw.rect(game.display, (255,0,0), (player_rect.x - game.scroll[0], player_rect.y - game.scroll[1], player_rect.width, player_rect.height), 1)
-        
         if rec.tile_data.get('aparece', True) and not rec.collected:
             if player_rect.colliderect(rec_rect):
                 game.item_collected.play()
                 rec.collect()
                 
-                # ==================== INTEGRAÇÃO COM BANCO DE DADOS ====================
-                # Chama método do game.py que salva no banco via GameDAO
                 tipo_item = self._get_tipo_item(rec.variant)
                 game.coletar_item(tipo_item)
                 
-                print(f"✅ Reciclável {tipo_item} coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
+                print(f"Reciclavel {tipo_item} coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
 
     def _get_tipo_item(self, variant):
         """
@@ -186,7 +179,6 @@ class Player(PhysiscsEntitiy):
         }
         
         tipo = tipos_map.get(variant, 'papel')
-        print(f"🔍 Debug: Variant {variant} → Tipo '{tipo}'")  # Log para debug
         return tipo
 
     def render(self, surf, offset=(0, 0)):
@@ -197,9 +189,9 @@ class Player(PhysiscsEntitiy):
         if self.game.tempo_imune_ativo:
             tempo_passado = pygame.time.get_ticks() - self.game.tempo_imune_inicio
             if ((tempo_passado // 150) % 2) == 0:
-                sprite.set_alpha(100)  # Transparente
+                sprite.set_alpha(100)
             else:
-                sprite.set_alpha(255)  # Opaco
+                sprite.set_alpha(255)
         else:
             sprite.set_alpha(255)
         
