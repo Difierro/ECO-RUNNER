@@ -27,41 +27,39 @@ class Game:
         self.usuario_dados = usuario_dados
         self.user_id = None
         self.nickname = "Jogador"
-        self.level=0
+        self.level = 0
         self.quantidade_coletada_total = 0
         if self.usuario_dados:
             self.user_id = usuario_dados.get('id')
             self.nickname = usuario_dados.get('nickname', 'Jogador')
             print(f"Player: {self.nickname} (ID: {self.user_id})")
             if(not usuario_dados.get('fase1_completa')):
-                self.level = 0
                 progresso = GameDAO.carregar_progresso_fase1(self.user_id)
                 if progresso:
-                    self.vidas_inicial = progresso.get('vidas', 5)
+                    self.vidas = progresso.get('vidas', 5)
                     self.itens_papel = progresso.get('itens_papel', 0)
                     self.itens_plastico = progresso.get('itens_plastico', 0)
                     self.itens_vidro = progresso.get('itens_vidro', 0)
                     self.itens_metal = progresso.get('itens_metal', 0)
                     self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
                                                 self.itens_vidro + self.itens_metal)
-                    #print(f"Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas_inicial}")
+                    #print(f"Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas}")
 
-            else:
+            else: #fase2
                 self.level = 1
-                
-                self.vidas_inicial = 5
+                self.vidas = 5
         else:
             print("modo offline - progresso nao sera salvo")
-            self.vidas_inicial = 5
+            self.vidas = 5
             self.itens_papel = 0
             self.itens_plastico = 0
             self.itens_vidro = 0
             self.itens_metal = 0
     
-        width = 640
-        heigth = 480
+        self.width = 640 * 1.5
+        self.heigth = 480 * 1.5
         pygame.display.set_caption("ECO RUNNER")
-        self.screen = pygame.display.set_mode((width, heigth))
+        self.screen = pygame.display.set_mode((self.width, self.heigth))
         self.display = pygame.Surface((320, 240))
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
@@ -159,7 +157,7 @@ class Game:
         self.scroll = [0,0]
         self.player.pos = [35,120]
         self.movement = [False, False]
-        self.vidas = self.vidas_inicial if hasattr(self, 'vidas_inicial') else 5
+        self.vidas = self.vidas if hasattr(self, 'vidas') else 5
         self.tempo_imune_ativo = False
         self.tempo_imune_inicio = 0
 
@@ -260,22 +258,21 @@ class Game:
                     break
 
     def game_over(self):
-        """Executa lógica de game over."""
-        
+        """Executa lógica de game over.""" 
         self.vidas = 5
-        grave_img = load_image('tiles/grave/grave.png')
         self.display.blit(self.assets['background'], (0, 0))
         self.tilemap.render(self.display, offset=(0,0))
         self.clouds.render(self.display, offset=(0,0))
-        for lixo in self.lixos_totais:
-            lixo.render(self.display, offset=(0,0))
+        for lixo2 in self.lixos_totais:
+            lixo2.render(self.display, offset=(0,0))
         for rec in self.reciclaveis_totais:
             rec.render(self.display, offset=(0,0))
-        self.display.blit(grave_img, self.player.pos)
         self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
         pygame.display.update()
-        pygame.time.delay(3000)
-        self.show_transition_screen('textos/game_over.png', duration=1.0)
+        pygame.time.delay(1000)
+        self.show_transition_screen('textos/game_over.png', duration=2.0)
+        self.load_level(self.level)
+
 
     def salvar_progresso_ao_sair(self):
         """Salva o progresso atual ao fechar o jogo."""
@@ -290,24 +287,10 @@ class Game:
                     vidas=self.vidas,
                     fase_completa=False
                 )
+                print("progresso salvo")
             except Exception as e:
                 print(f"erro ao salvar progresso: {e}")
-                    self.vidas = 5
-                    #grave_img = load_image('tiles/grave/grave.png')
-                    self.display.blit(self.assets['background'], (0, 0))
-                    self.tilemap.render(self.display, offset=(0,0))
-                    self.clouds.render(self.display, offset=(0,0))
-                    for lixo2 in self.lixos_totais:
-                        lixo2.render(self.display, offset=(0,0))
-                    for rec in self.reciclaveis_totais:
-                        rec.render(self.display, offset=(0,0))
-                    #self.display.blit(grave_img, self.player.pos)
-                    self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
-                    pygame.display.update()
-                    pygame.time.delay(1000)
-                    self.show_transition_screen('textos/game_over.png', duration=2.0)
-                    self.load_level(self.level)
-                    break
+            
 
     def run(self):
         """Loop principal do jogo."""
@@ -328,9 +311,7 @@ class Game:
 
             # Verifica se caiu do mapa
             if self.player.pos[1] > 1000:
-                self.vidas = 5
-                self.load_level(self.level)
-                self.show_transition_screen('textos/game_over.png', duration = 2.0)
+                self.game_over()
 
             # Renderiza recicláveis
             for rec in self.reciclaveis_totais:
@@ -354,7 +335,6 @@ class Game:
             # Eventos
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    # ==================== SALVAR AO SAIR ====================
                     self.salvar_progresso_ao_sair()
                     pygame.quit()
                     exit()
@@ -382,9 +362,8 @@ class Game:
             for i in range(self.vidas):
                 self.screen.blit(self.assets['vida'], (10 + i*20, 30))
 
-            # Mostra nickname e itens coletados
-            if self.nickname != "Jogador":
-                self.draw_text_hud(f"{self.nickname}", pos=(10, 450), color=(150, 255, 150))
+            # Mostra nickname 
+                self.draw_text_hud(f"{self.nickname}",pos=(25, self.heigth-40), color=(150, 255, 150))
 
             pygame.display.update()
             self.clock.tick(60)

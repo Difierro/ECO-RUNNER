@@ -7,7 +7,7 @@ from scripts.database.user_DAO import UserDAO
 
 pygame.init()
 
-WIDTH, HEIGHT = 640 * 2, 480* 2
+WIDTH, HEIGHT = 640 * 1.5, 480* 1.5
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Eco Runner - Autenticação")
 
