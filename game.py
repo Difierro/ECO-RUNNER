@@ -180,6 +180,11 @@ class Game:
                     lixo = Lixo(self, pos, (16,16), img)
                     self.lixos_totais.append(lixo)
                     del self.tilemap.tilemap[loc]
+        
+        elif(map_id == 1):
+            self.assets['player/anda'] = Animation(load_images('player/guardia_arma/anda'), img_dur=5)
+            self.assets['player/parada'] = Animation(load_images('player/guardia_arma/parada'), img_dur=6)
+
         self.show_transition_screen(f'textos/level/{self.level}.png', 2)
         for loc in list(self.tilemap.tilemap):
             tile = self.tilemap.tilemap[loc]
@@ -203,6 +208,7 @@ class Game:
             for rec in random.sample(self.reciclaveis_totais, min(faltam, len(self.reciclaveis_totais))):
                 rec.tile_data['aparece'] = True
 
+        
     def coletar_item(self, tipo_item):
         """
         Atualiza contadores locais e salva no banco ao coletar item.
@@ -323,8 +329,8 @@ class Game:
                 lixo.render(self.display, offset=render_scroll)
 
             # Verifica se completou a fase
-            if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
-                self.show_transition_screen('textos/logo.png', 15)
+            if self.level == 0  and self.quantidade_coletada_total >= self.reciclaveis_por_fase:
+                self.show_transition_screen('textos/logo.png', 3)
                 
                 self.next_level()
 
