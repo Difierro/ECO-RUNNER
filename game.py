@@ -84,6 +84,8 @@ class Game:
             'background': load_image('background/2.png'),
             'player/anda': Animation(load_images('player/guardia/anda'), img_dur=5),
             'player/parada': Animation(load_images('player/guardia/parada'), img_dur=6),
+            'player/arma_anda': Animation(load_images('player/guardia_arma/anda'), img_dur=5),
+            'player/arma_parada': Animation(load_images('player/guardia_arma/parada'), img_dur=6), 
             'lixo': load_images('colisao/'),
             'reciclavel': load_images('reciclaveis/'),
             'placas': load_images('placas/'),
