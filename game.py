@@ -96,6 +96,7 @@ class Game:
         self.clouds = Clouds(self.assets['clouds'], 8)
         self.player = Player(self, (35,120), (10,16))
         self.tilemap = Tilemap(self, tile_size=16)
+        self.projectiles = []
 
         # ==================== CONFIGURAÇÕES DO JOGO ====================
 
@@ -317,6 +318,13 @@ class Game:
             self.player.update(self.tilemap, (self.movement[1]-self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
 
+            for p in self.projectiles.copy():
+                p.update()
+                p.render(self.display, offset = render_scroll)
+
+                if not p.alive:
+                    self.projectiles.remove(p)
+
             # Verifica se caiu do mapa
             if self.player.pos[1] > 1000:
                 self.game_over()
@@ -354,6 +362,8 @@ class Game:
                     if event.key in [K_w, K_UP]: 
                         self.player.jump()
                         self.jump_sound.play()
+                    if event.key == K_SPACE:
+                        self.player.shoot()
                     
                 if event.type == KEYUP:
                     if event.key in [K_a, K_LEFT]: 

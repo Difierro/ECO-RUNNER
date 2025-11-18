@@ -14,7 +14,7 @@ class PhysiscsEntitiy:
         self.anim_offset = (3, 0)
         self.flip = False
         if entity_type == 'player':
-            self.set_action('anda') 
+            self.set_action('anda')
     
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
@@ -200,6 +200,15 @@ class Player(PhysiscsEntitiy):
             self.pos[1] - offset[1]
         )
         surf.blit(sprite, sprite_pos)
+    
+    def shoot(self):
+        if self.game.level == 1:
+            direction = -1 if self.flip else 1
+            velocity = 5*direction
+            projectile_pos = self.rect().center
+            projectile = Projectile(self.game, projectile_pos, (6, 2), velocity)
+            self.game.projectiles.append(projectile)
+            # self.game.shoot_sound.play()
 
 
 class Reciclavel(PhysiscsEntitiy):
@@ -234,3 +243,26 @@ class Lixo:
     def render(self, surface, offset=(0,0)):
         """Renderiza o lixo radioativo."""
         surface.blit(self.image, (self.pos[0]-offset[0], self.pos[1]-offset[1]))
+
+class Projectile():
+    def __init__(self, game, pos, size, velocity):
+        self.game = game
+        self.pos = list(pos)
+        self.size = size
+        self.velocity = velocity
+        self.lifetime = 120
+        self.alive = True
+        self.image = pygame.Surface(size)
+        self.image.fill((255, 255, 255))
+    
+    def update(self):
+        self.pos[0] += self.velocity
+        self.lifetime -= 1
+        if self.lifetime <= 0:
+            self.alive = False
+    
+    def rect(self):
+        return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
+    
+    def render(self, surf, offset = (0, 0)):
+        surf.blit(self.image, (self.pos[0]- offset[0], self.pos[1] - offset[1]))
