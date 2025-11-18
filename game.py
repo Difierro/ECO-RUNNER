@@ -73,6 +73,8 @@ class Game:
         self.item_collected = pygame.mixer.Sound('assets/sounds/collect.mp3')
         self.jump_sound.set_volume(0.1)
         self.item_collected.set_volume(0.1)
+        self.shoot_sound = pygame.mixer.Sound('assets/sounds/shoot.mp3')
+        self.shoot_sound.set_volume(1.0)
 
         # ==================== ASSETS ====================
         self.assets = {

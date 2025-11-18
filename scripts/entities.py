@@ -208,7 +208,7 @@ class Player(PhysiscsEntitiy):
             projectile_pos = self.rect().center
             projectile = Projectile(self.game, projectile_pos, (6, 2), velocity)
             self.game.projectiles.append(projectile)
-            # self.game.shoot_sound.play()
+            self.game.shoot_sound.play()
 
 
 class Reciclavel(PhysiscsEntitiy):
