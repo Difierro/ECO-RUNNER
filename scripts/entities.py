@@ -202,7 +202,7 @@ class Player(PhysiscsEntitiy):
         surf.blit(sprite, sprite_pos)
     
     def shoot(self):
-        if self.game.level == 1:
+        if self.game.level == 2:
             direction = -1 if self.flip else 1
             velocity = 5*direction
             projectile_pos = self.rect().center
