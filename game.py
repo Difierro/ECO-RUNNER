@@ -376,7 +376,7 @@ class Game:
         self.jump_sound.set_volume(0.1)
         self.item_collected.set_volume(0.1)
         self.shoot_sound = pygame.mixer.Sound('assets/sounds/shoot.mp3')
-        self.shoot_sound.set_volume(1.0)
+        self.shoot_sound.set_volume(0.5)
 
         # ==================== ASSETS ====================
         self.assets = {
@@ -393,7 +393,8 @@ class Game:
             'lixo': load_images('colisao/'),
             'reciclavel': load_images('reciclaveis/'),
             'placas': load_images('placas/'),
-            'vida': load_image('vida/0.png')
+            'vida': load_image('vida/0.png'),
+            'projetil': load_image('projetil/0.png')
         }
 
         # ==================== ENTIDADES ====================

@@ -252,8 +252,10 @@ class Projectile():
         self.velocity = velocity
         self.lifetime = 120
         self.alive = True
-        self.image = pygame.Surface(size)
-        self.image.fill((255, 255, 255))
+        self.image = self.game.assets['projetil']
+
+        if self.velocity < 0:
+            self.image = pygame.transform.flip(self.image, True, False)
     
     def update(self):
         self.pos[0] += self.velocity
