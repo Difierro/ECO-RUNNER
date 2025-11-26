@@ -60,7 +60,7 @@ class UserDAO:
             )
             
             if cursor.fetchone():
-                return False, "Nome de usuário já existe"
+                return False, "Erro ao cadastrar usuário"
             
             # Gera hash e salt
             senha_hash, salt = UserDAO._hash_password(senha)
@@ -100,7 +100,7 @@ class UserDAO:
         except psycopg2.IntegrityError:
             if connection:
                 connection.rollback()
-            return False, "Nome de usuário já existe"
+            return False, "Erro ao cadastrar usuário"
         
         except psycopg2.Error as e:
             if connection:
@@ -150,7 +150,7 @@ class UserDAO:
             resultado = cursor.fetchone()
             
             if not resultado:
-                return False, "Usuário não encontrado"
+                return False, "Credenciais inválidas"
             
             user_id, nickname_db, senha_hash_db, salt, fase1_completa, fase2_completa, fase3_completa, vidas_fase1, game_over_fase1 = resultado
             
@@ -158,7 +158,7 @@ class UserDAO:
             senha_hash_input, _ = UserDAO._hash_password(senha, salt)
             
             if senha_hash_input != senha_hash_db:
-                return False, "Senha incorreta"
+                return False, "Credenciais inválidas"
             
             # Retorna dados do usuário
             dados_usuario = {
