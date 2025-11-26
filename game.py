@@ -14,7 +14,7 @@ import time
 # Variável global para contagem de recicláveis (compatibilidade)
 quantidade_coletada_total = 0
 
-# --- FASE 2 (SEPARAÇÃO) ---
+# --- FASE 2 (SEPARAÇÃO) - INTACTA ---
 class Fase2:
     def __init__(self, game, itens_coletados):
         self.game = game
@@ -160,6 +160,11 @@ class Fase2:
                 self.game.salvar_progresso_ao_sair()
                 pygame.quit(); exit()
             
+            # --- ADIÇÃO: MENU DE PAUSE NA FASE 2 ---
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    self.game.pause_menu()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     for item in reversed(self.items_to_sort):
@@ -301,10 +306,6 @@ class Game:
     def __init__(self, usuario_dados=None):
         """
         Inicializa o jogo.
-        
-        Args:
-            usuario_dados (dict, optional): Dados do usuário logado do banco de dados.
-                Contém: id, nickname, fase1_completa, fase2_completa, fase3_completa, vidas, game_over
         """
         pygame.init()
         
@@ -333,7 +334,6 @@ class Game:
                     self.itens_metal = progresso.get('itens_metal', 0)
                     self.quantidade_coletada_total = (self.itens_papel + self.itens_plastico +
                                                 self.itens_vidro + self.itens_metal)
-                    #print(f"Progresso carregado: Papel={self.itens_papel}, Plástico={self.itens_plastico}, Vidro={self.itens_vidro}, Metal={self.itens_metal}, Vidas={self.vidas}")
 
             elif not usuario_dados.get('fase2_completa'): 
                 self.level = 1
@@ -518,9 +518,6 @@ class Game:
     def coletar_item(self, tipo_item):
         """
         Atualiza contadores locais e salva no banco ao coletar item.
-        
-        Args:
-            tipo_item (str): Tipo do item coletado ('papel', 'plastico', 'vidro', 'metal')
         """
         self.quantidade_coletada_total += 1
         
@@ -632,7 +629,99 @@ class Game:
             print("progresso salvo")
         except Exception as e:
             print(f"erro ao salvar progresso: {e}")
+    
+    # === MÉTODOS DE CONTINUAR, SAIR E PAUSAR  ===
+
+    def pause_menu(self):
+        """Exibe o menu de pausa."""
+        frozen_frame = self.screen.copy()
+
+        font_big = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 28)
+        font_med = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
+        font_small = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 12)
+
+        panel_w, panel_h = 480, 320 
+        panel_surf = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        panel_rect = panel_surf.get_rect(center=(self.width//2, self.heigth//2))
+
+        def make_button(text, y_pos_absolute):
+            btn_w, btn_h = 360, 38
+            btn_surf = pygame.Surface((btn_w, btn_h), pygame.SRCALPHA)
+            btn_rect = btn_surf.get_rect(center=(panel_w//2, y_pos_absolute))
+            return btn_surf, btn_rect
+
+        btn_resume_surf, btn_resume_rect = make_button("CONTINUAR", 160)
+        btn_quit_surf, btn_quit_rect = make_button("SAIR", 230)
+
+        paused = True
+        max_fade = 180
+
+        def panel_point(global_pos):
+            return (global_pos[0] - panel_rect.x, global_pos[1] - panel_rect.y)
+
+        while paused:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    self.salvar_progresso_ao_sair()
+                    pygame.quit(); exit()
+
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        paused = False 
+
+                if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    mx, my = event.pos
+                    px, py = panel_point((mx, my))
+                    if btn_resume_rect.collidepoint((px, py)):
+                        paused = False
+                    elif btn_quit_rect.collidepoint((px, py)):
+                        self.salvar_progresso_ao_sair()
+                        pygame.quit(); exit()
+
+            self.screen.blit(frozen_frame, (0, 0))
+            overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+            overlay.fill((8, 12, 18, max_fade))
+            self.screen.blit(overlay, (0, 0))
+
+            shadow = pygame.Surface((panel_w+12, panel_h+12), pygame.SRCALPHA)
+            shadow.fill((0,0,0,140))
+            self.screen.blit(shadow, (panel_rect.x-6, panel_rect.y-6))
+
+            panel_surf.fill((18, 26, 32, 240))
+
+            title = font_big.render("PAUSADO", True, (240, 240, 240))
+            panel_surf.blit(title, (panel_w//2 - title.get_width()//2, 20))
+
+            nome_txt = font_med.render(f"Jogador: {self.nickname}", True, (100, 255, 100))
+            panel_surf.blit(nome_txt, (panel_w//2 - nome_txt.get_width()//2, 65))
+
+            # informações do menu
+            if self.level == 1:
+                info_txt = font_small.render(f"Vidas: {self.vidas}", True, (200, 200, 200))
+            else: 
+                info_txt = font_small.render(f"Vidas: {self.vidas}  |  Coletados: {self.quantidade_coletada_total}", True, (200, 200, 200))
             
+            panel_surf.blit(info_txt, (panel_w//2 - info_txt.get_width()//2, 90))
+
+            def draw_button(surf, rect, text, hovered=False):
+                color_bg = (36, 44, 52, 200) if not hovered else (46, 154, 98, 230)
+                pygame.draw.rect(surf, (0,0,0,0), rect)
+                b = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
+                b.fill(color_bg)
+                surf.blit(b, rect.topleft)
+                pygame.draw.rect(surf, (255,255,255,20), rect, 1, border_radius=6)
+                t = font_med.render(text, True, (255,255,255))
+                surf.blit(t, (rect.centerx - t.get_width()//2, rect.centery - t.get_height()//2))
+
+            mx, my = pygame.mouse.get_pos()
+            px, py = panel_point((mx, my))
+
+            draw_button(panel_surf, btn_resume_rect, "CONTINUAR", btn_resume_rect.collidepoint((px, py)))
+            draw_button(panel_surf, btn_quit_rect, "SAIR", btn_quit_rect.collidepoint((px, py)))
+
+            self.screen.blit(panel_surf, panel_rect.topleft)
+            pygame.display.update()
+            self.clock.tick(60)
 
     def run(self):
         """Loop principal do jogo."""
@@ -687,6 +776,7 @@ class Game:
             # Eventos
             for event in pygame.event.get():
                 if event.type == QUIT:
+                    # salva se sair pelo X
                     self.salvar_progresso_ao_sair()
                     pygame.quit()
                     exit()
@@ -700,6 +790,10 @@ class Game:
                         self.jump_sound.play()
                     if event.key == K_SPACE:
                         self.player.shoot()
+                    
+                    # --- COMANDOS DE PAUSE ---
+                    if event.key == K_ESCAPE:
+                        self.pause_menu()
                     
                 if event.type == KEYUP:
                     if event.key in [K_a, K_LEFT]: 
