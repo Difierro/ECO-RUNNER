@@ -1,4 +1,6 @@
 import pygame
+import math
+import random
 from scripts.utils import load_image
 
 class PhysiscsEntitiy:
@@ -83,9 +85,13 @@ class Player(PhysiscsEntitiy):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
         self.jumps = 2
+        self.shoot_cooldown = 0
 
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
+
+        if self.shoot_cooldown > 0:
+            self.shoot_cooldown -= 1
 
         self.air_time += 1
         if self.collisions['down']:
@@ -203,13 +209,14 @@ class Player(PhysiscsEntitiy):
     
     def shoot(self):
         if self.game.level == 2:
-            direction = -1 if self.flip else 1
-            velocity = 5*direction
-            projectile_pos = self.rect().center
-            projectile = Projectile(self.game, projectile_pos, (6, 2), velocity)
-            self.game.projectiles.append(projectile)
-            self.game.shoot_sound.play()
-
+            if self.shoot_cooldown == 0:
+                self.shoot_cooldown = 60
+                direction = -1 if self.flip else 1
+                velocity = 5*direction
+                projectile_pos = self.rect().center
+                projectile = Projectile(self.game, projectile_pos, (6, 2), velocity)
+                self.game.projectiles.append(projectile)
+                self.game.shoot_sound.play()
 
 class Reciclavel(PhysiscsEntitiy):
     def __init__(self, game, pos, size, variant=0):
@@ -244,27 +251,144 @@ class Lixo:
         """Renderiza o lixo radioativo."""
         surface.blit(self.image, (self.pos[0]-offset[0], self.pos[1]-offset[1]))
 
-class Projectile():
+class Projectile:
     def __init__(self, game, pos, size, velocity):
         self.game = game
         self.pos = list(pos)
         self.size = size
-        self.velocity = velocity
-        self.lifetime = 120
+        
+        if isinstance(velocity, (int, float)):
+             self.velocity = [velocity, 0]
+        else:
+             self.velocity = list(velocity) 
+             
+        self.lifetime = 300 
         self.alive = True
-        self.image = self.game.assets['projetil']
+        
+        if 'projetil' in self.game.assets:
+            self.image = self.game.assets['projetil']
+        else:
+            self.image = pygame.Surface(size)
+            self.image.fill((255, 255, 255))
 
-        if self.velocity < 0:
+        if self.velocity[0] < 0:
             self.image = pygame.transform.flip(self.image, True, False)
-    
-    def update(self):
-        self.pos[0] += self.velocity
+            
+        self.is_enemy = False 
+
+    def update(self, tilemap):
+        self.pos[0] += self.velocity[0]
+        self.pos[1] += self.velocity[1]
+        bullet_rect = self.rect()
+        
+        for rect in tilemap.physics_rects_around(self.pos):
+            if bullet_rect.colliderect(rect):
+                self.alive = False 
+                self.game.impact_sound.play()
+                break 
+
         self.lifetime -= 1
         if self.lifetime <= 0:
             self.alive = False
-    
+
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
+
+    def render(self, surf, offset=(0, 0)):
+        surf.blit(self.image, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+
+
+class Yluh(PhysiscsEntitiy):
+    def __init__(self, game, pos, size):
+        super().__init__(game, 'yluh', pos, size)
+        self.set_action('idle')
+        self.hp = 20
+        self.max_hp = 20
+        self.alive = True
+        self.dead = False
+        self.start_y = pos[1] 
+        self.invulnerable = False
+        self.invulnerable_timer = 0
+        self.is_attacking = False
+        self.shots_fired = 0
+        self.shot_timer = 0
+        self.burst_cooldown = random.randint(120, 300) 
+
+    def update(self, tilemap):
+            self.velocity[1] = 0 
+            flutuacao = (math.cos(pygame.time.get_ticks() / 1500) - 1) * 45
+            
+            self.pos[1] = self.start_y + flutuacao
+            if self.game.player.rect().centerx < self.rect().centerx:
+                self.flip = False 
+            else:
+                self.flip = True  
+
+            if self.is_attacking:
+                if self.shot_timer > 0:
+                    self.shot_timer -= 1
+                else:
+                    self.fire_projectile()
+                    self.shots_fired += 1
+                    self.shot_timer = 60
+                    
+                    if self.shots_fired >= 5:
+                        self.is_attacking = False
+                        self.shots_fired = 0
+                        self.burst_cooldown = random.randint(120, 300)
+            else:
+                if self.burst_cooldown > 0:
+                    self.burst_cooldown -= 1
+                else:
+                    self.is_attacking = True
+                    self.shot_timer = 0
+
+            self.animation.update()
+            
+            if self.hp <= 0:
+                self.alive = False
+                self.dead = True
+                
+            if self.invulnerable:
+                self.invulnerable_timer -= 1
+                if self.invulnerable_timer <= 0:
+                    self.invulnerable = False
+
+    def fire_projectile(self):
+        start_pos = self.rect().center
+        target_pos = self.game.player.rect().center
+        
+        diff_x = target_pos[0] - start_pos[0]
+        diff_y = target_pos[1] - start_pos[1]
+        dist = math.sqrt(diff_x**2 + diff_y**2)
+        
+        if dist > 0:
+            speed = 4
+            vel_x = (diff_x / dist) * speed
+            vel_y = (diff_y / dist) * speed
+            p = Projectile(self.game, start_pos, (8, 8), [vel_x, vel_y])
+            p.image = self.game.assets['projetil_yluh']
+            p.is_enemy = True 
+            self.game.enemy_projectiles.append(p)
+            self.game.throw_sound.play()
+
+    def render(self, surf, offset=(0, 0)):
+        if self.invulnerable and (self.invulnerable_timer // 5) % 2 == 0:
+            return 
+        super().render(surf, offset)
+        x = self.pos[0] - offset[0]
+        y = self.pos[1] - offset[1] - 10 
+        pygame.draw.rect(surf, (200, 0, 0), (x, y, self.size[0], 4))
+        if self.max_hp > 0:
+            w = (self.hp / self.max_hp) * self.size[0]
+            pygame.draw.rect(surf, (0, 200, 0), (x, y, w, 4))
     
-    def render(self, surf, offset = (0, 0)):
-        surf.blit(self.image, (self.pos[0]- offset[0], self.pos[1] - offset[1]))
+    def take_damage(self):
+        if not self.invulnerable:
+            self.hp -= 1
+            self.invulnerable = True
+            self.invulnerable_timer = 30
+            if self.hp <= 0:
+                self.alive = False
+                return True
+        return False

@@ -312,7 +312,7 @@ class Game:
         self.usuario_dados = usuario_dados
         self.user_id = None
         self.nickname = "Jogador"
-        self.level = 0
+        self.level = 2
         self.quantidade_coletada_total = 0
         
         self.itens_papel = 0
@@ -377,7 +377,14 @@ class Game:
         self.item_collected.set_volume(0.1)
         self.shoot_sound = pygame.mixer.Sound('assets/sounds/shoot.mp3')
         self.shoot_sound.set_volume(0.5)
-
+        self.hit_sound = pygame.mixer.Sound('assets/sounds/hit.mp3')
+        self.hit_sound.set_volume(0.1)
+        self.hurt_sound = pygame.mixer.Sound('assets/sounds/hurt.mp3')
+        self.hurt_sound.set_volume(0.3)
+        self.impact_sound = pygame.mixer.Sound('assets/sounds/impact.mp3')
+        self.impact_sound.set_volume(0.2)
+        self.throw_sound = pygame.mixer.Sound('assets/sounds/throw.mp3')
+        self.throw_sound.set_volume(0.3)
         # ==================== ASSETS ====================
         self.assets = {
             'decor': load_images('tiles/decor'),
@@ -394,7 +401,9 @@ class Game:
             'reciclavel': load_images('reciclaveis/'),
             'placas': load_images('placas/'),
             'vida': load_image('vida/0.png'),
-            'projetil': load_image('projetil/0.png')
+            'projetil': load_image('projetil/0.png'),
+            'projetil_yluh': pygame.transform.scale(load_image('projetil/1.png'), (13, 13)),
+            'yluh/idle': Animation([pygame.transform.scale(img, (70, 70)) for img in load_images('yluh')], img_dur=3)
         }
 
         # ==================== ENTIDADES ====================
@@ -402,7 +411,7 @@ class Game:
         self.player = Player(self, (35,120), (10,16))
         self.tilemap = Tilemap(self, tile_size=16)
         self.projectiles = []
-
+        self.enemy_projectiles = []
         # ==================== CONFIGURAÇÕES DO JOGO ====================
 
         self.max_level = 3
@@ -468,12 +477,14 @@ class Game:
             pass
 
     def load_level(self, map_id):
+        self.boss = None
         """Carrega uma fase do jogo."""
         json_idx = 0 if map_id == 0 else 1
         
         self.tilemap.load(f'assets/maps/{json_idx}.json')
         self.scroll = [0,0]
         self.player.pos = [35,120]
+        self.player.velocity = [0,0]
         self.movement = [False, False]
         self.vidas = self.vidas if hasattr(self, 'vidas') else 5
         self.tempo_imune_ativo = False
@@ -513,6 +524,8 @@ class Game:
             self.assets['player/anda'] = Animation(load_images('player/guardia_arma/anda'), img_dur=5)
             self.assets['player/parada'] = Animation(load_images('player/guardia_arma/parada'), img_dur=6)
             self.player.set_action('parada')
+            from scripts.entities import Yluh
+            self.boss = Yluh(self, (250, 130), (50, 60))
 
         
     def coletar_item(self, tipo_item):
@@ -587,9 +600,8 @@ class Game:
                 if not self.tempo_imune_ativo:
                     self.vidas -= 1
                     self.tempo_imune_ativo = True
+                    self.hurt_sound.play()
                     self.tempo_imune_inicio = pygame.time.get_ticks()
-                    
-    
                 if self.vidas <= 0:
                     self.game_over()
                     break
@@ -733,8 +745,13 @@ class Game:
         while True:
             self.display.blit(self.assets['background'], (0, 0)) 
             camera_offset_y = 70
-            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30 
-            self.scroll[1] += ((self.player.rect().centery - camera_offset_y) - self.display.get_height() / 2 - self.scroll[1]) / 30 
+
+            if self.level == 2:
+                self.scroll[0] = 0
+                self.scroll[1] = 0
+            else:
+                self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30 
+                self.scroll[1] += ((self.player.rect().centery - camera_offset_y) - self.display.get_height() / 2 - self.scroll[1]) / 30 
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.clouds.update()
@@ -745,11 +762,63 @@ class Game:
             self.player.render(self.display, offset=render_scroll)
 
             for p in self.projectiles.copy():
-                p.update()
+                p.update(self.tilemap)
                 p.render(self.display, offset = render_scroll)
 
+                if self.level == 2 and self.boss and self.boss.alive:
+                    if p.rect().colliderect(self.boss.rect()):
+                        damage = self.boss.take_damage()
+                        p.alive = False
+                        self.hit_sound.play()
+
+                        if not self.boss.alive:
+                            GameDAO.salvar_progresso_fase3(self.user_id, self.vidas, True)
+
+                            # MODIFICAR (ir para que tela quando terminar a terceira fase?)
+                            self.show_transition_screen('textos/logo.png', 5)
+                            self.boss = None
+                            self.level = 0
+                            self.load_level(self.level)
+                            
                 if not p.alive:
                     self.projectiles.remove(p)
+            
+            for p in self.enemy_projectiles.copy():
+                p.update(self.tilemap)
+                p.render(self.display, offset = render_scroll)
+
+                if p.rect().colliderect(self.player.rect()):
+                    if not self.tempo_imune_ativo:
+                        self.vidas -= 1
+                        self.tempo_imune_ativo = True
+                        self.tempo_imune_inicio = pygame.time.get_ticks()
+                        self.hurt_sound.play()
+                        
+                        if self.vidas <= 0:
+                            self.game_over()
+
+                    p.alive = False
+
+                if not p.alive:
+                    self.enemy_projectiles.remove(p)
+
+            if self.level == 2 and self.boss and self.boss.alive:
+                self.boss.update(self.tilemap)
+                self.boss.render(self.display, offset=render_scroll)
+                if self.player.rect().colliderect(self.boss.rect()):
+                    if not self.tempo_imune_ativo:
+                        self.vidas -= 1
+                        self.tempo_imune_ativo = True
+                        self.tempo_imune_inicio = pygame.time.get_ticks()
+            
+                        if self.boss.rect().centerx > self.player.rect().centerx:
+                            self.player.velocity[0] = -4
+                        else:
+                            self.player.velocity[0] = 4  
+                        self.player.velocity[1] = -1.5   
+                        
+                        if self.vidas <= 0:
+                            self.game_over()
 
             # Verifica se caiu do mapa
             if self.player.pos[1] > 1000:
