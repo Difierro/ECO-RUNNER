@@ -209,6 +209,8 @@ class LoginScreen(AuthScreen):
         
         if sucesso:
             self.set_feedback("Login realizado com sucesso!", success=True)
+            self.draw_common()     
+            pygame.display.flip()
             pygame.time.wait(1000)
             # Passa dados do usuário para o jogo
             self.running = False
@@ -263,6 +265,9 @@ class RegisterScreen(AuthScreen):
         
         if sucesso:
             self.set_feedback(mensagem, success=True)
+            self.draw_common()      
+            
+            pygame.display.flip()
             pygame.time.wait(1500)
             self.voltar()
         else:

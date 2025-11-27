@@ -95,7 +95,7 @@ class UserDAO:
             
             connection.commit()
             print(f"Usuário '{nickname}' cadastrado com sucesso!")
-            return True, "Usuário cadastrado com sucesso"
+            return True, "Usuário cadastrado com sucesso!"
             
         except psycopg2.IntegrityError:
             if connection:
