@@ -9,21 +9,27 @@ from scripts.utils import load_image, load_images, Animation
 from scripts.clouds import Clouds
 from scripts.database.game_DAO import GameDAO
 import time
+from screeninfo import get_monitors
 
 
 # Variável global para contagem de recicláveis (compatibilidade)
 quantidade_coletada_total = 0
+monitor = get_monitors()
+WIDTH = monitor[0].width
+HEIGHT = monitor[0].height
+# Fatores de escala
+SX = WIDTH / 960
+SY = HEIGHT / 720
+S = (SX + SY) / 2
 
 # --- FASE 2 (SEPARAÇÃO) - INTACTA ---
 class Fase2:
     def __init__(self, game, itens_coletados):
         self.game = game
-        self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
-        self.small_font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 10)
-        self.tiny_font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 8)
+        self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(16*S))
+        self.small_font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(10*S))
+        self.tiny_font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(8*S))
         
-        self.width = game.width
-        self.height = game.heigth
         
         # Reinicia as vidas ao começar a fase
         self.vidas = 5
@@ -45,18 +51,18 @@ class Fase2:
             15: "Parafuso", 16: "Martelo", 17: "Cadeado", 18: "Chave", 19: "Lata de refrigerante"
         }
 
-        self.inv_margin_x = 140 
-        self.inv_top_y = 100
-        self.inv_height = 220 
+        self.inv_margin_x = int(140*SX) 
+        self.inv_top_y = int(100 * SY)
+        self.inv_height = int(220*SY) 
 
         self.inv_area_rect = pygame.Rect(
             self.inv_margin_x, 
             self.inv_top_y, 
-            self.width - (self.inv_margin_x * 2), 
+            WIDTH - (self.inv_margin_x * 2), 
             self.inv_height
         )
         
-        self.bins_y = self.height - 180 
+        self.bins_y = HEIGHT - int(180 * SY) 
 
         self.bins = {
             'papel':    {'img': load_image('lixeiras/lixeiras1.png'), 'type': 'papel', 'label': 'Papel'},
@@ -66,10 +72,10 @@ class Fase2:
         }
         
         total_bins = len(self.bins)
-        bin_w, bin_h = 70, 90
-        gap_bins = 80
+        bin_w, bin_h = int(70*S), int(90*S)
+        gap_bins = int(80*S)
         total_w = (bin_w * total_bins) + (gap_bins * (total_bins - 1))
-        start_x = (self.width - total_w) // 2
+        start_x = (WIDTH - total_w) // 2
         
         keys_order = ['papel', 'metal', 'plastico', 'vidro']
         current_x = start_x
@@ -81,6 +87,7 @@ class Fase2:
             current_x += bin_w + gap_bins
 
         self.items_to_sort = []
+        print(itens_coletados)
         self.generate_items_grid(itens_coletados)
         self.selected_item = None
         self.dragging = False
@@ -129,8 +136,8 @@ class Fase2:
 
         random.shuffle(temp_list)
 
-        size = 48
-        pad = 15
+        size = int(48 * S)
+        pad = int(15 * S)
         cols = (self.inv_area_rect.width - pad) // (size + pad)
         if cols < 1: cols = 1
         
@@ -240,18 +247,25 @@ class Fase2:
 
     def render(self):
         self.game.display.fill((30, 30, 35))
-        bg = pygame.transform.scale(self.game.assets['background'], (self.width, self.height))
+        bg = pygame.transform.scale(self.game.assets['background'], (WIDTH, HEIGHT))
         self.game.screen.blit(bg, (0,0))
         
-        ov = pygame.Surface((self.width, self.height))
+        ov = pygame.Surface((WIDTH, HEIGHT))
         ov.fill((0,0,0)); ov.set_alpha(180)
         self.game.screen.blit(ov, (0,0))
 
         t = self.font.render("CLASSIFICAÇÃO DE RECICLÁVEIS", True, (255, 255, 255))
-        self.game.screen.blit(t, (self.width//2 - t.get_width()//2, 40))
+        self.game.screen.blit(t, (WIDTH//2 - t.get_width()//2, 40))
         
+        vida_size = int(32 * S)   
+        vida_img = pygame.transform.scale(self.game.assets['vida'], (vida_size, vida_size))
+
         for i in range(self.vidas):
-            self.game.screen.blit(self.game.assets['vida'], (40 + i*35, 35))
+            self.game.screen.blit(
+                vida_img,
+                (int(40*SX) + i * int(35*SX), int(35*SY))
+            )
+
 
         pygame.draw.rect(self.game.screen, (255, 255, 255), self.inv_area_rect, 2, border_radius=15)
         l_inv = self.small_font.render("ITENS COLETADOS", True, (200, 200, 200))
@@ -277,20 +291,20 @@ class Fase2:
 
         if hover:
             ts = self.tiny_font.render(hover, True, (255, 255, 0))
-            tr = pygame.Rect(mx + 15, my, ts.get_width() + 10, ts.get_height() + 10)
+            tr = pygame.Rect(mx + int(15*SX), my, ts.get_width() + int(10*SX), ts.get_height() + int(10*SY))
             pygame.draw.rect(self.game.screen, (20, 20, 20), tr, border_radius=5)
             pygame.draw.rect(self.game.screen, (255,255,255), tr, 1, border_radius=5)
             self.game.screen.blit(ts, (tr.x+5, tr.y+5))
 
         if self.feedback_timer > 0:
             fs = self.small_font.render(self.feedback_msg, True, self.feedback_color)
-            fy = self.height - 40 
-            self.game.screen.blit(fs, (self.width//2 - fs.get_width()//2, fy))
+            fy = HEIGHT - int(40*SY) 
+            self.game.screen.blit(fs, (WIDTH//2 - fs.get_width()//2, fy))
             self.feedback_timer -= 1
 
         pygame.display.update()
 
-    def run(self):
+    def run(self, game):
         running = True
         while running and self.items_to_sort:
             self.handle_input()
@@ -299,6 +313,8 @@ class Fase2:
             self.game.clock.tick(60)
             if not self.items_to_sort: running = False
         if self.vidas > 0 and not self.items_to_sort:
+            game.show_transition_screen('textos/fundos/f2f-1.png', 5)
+            game.show_transition_screen('textos/fundos/f2f-2.png', 5)
             self.finish_phase()
 
 
@@ -312,7 +328,7 @@ class Game:
         self.usuario_dados = usuario_dados
         self.user_id = None
         self.nickname = "Jogador"
-        self.level = 2
+        self.level = 0
         self.quantidade_coletada_total = 0
         
         self.itens_papel = 0
@@ -338,12 +354,12 @@ class Game:
             elif not usuario_dados.get('fase2_completa'): 
                 self.level = 1
                 self.vidas = 5
-                progresso = GameDAO.carregar_progresso_fase1(self.user_id)
+                progresso = GameDAO.carregar_progresso_fase2(self.user_id)
                 if progresso:
-                    self.itens_papel = progresso.get('itens_papel', 0)
-                    self.itens_plastico = progresso.get('itens_plastico', 0)
-                    self.itens_vidro = progresso.get('itens_vidro', 0)
-                    self.itens_metal = progresso.get('itens_metal', 0)
+                    self.itens_papel = 5 - progresso.get('lixeira_papel', 0)
+                    self.itens_plastico = 5 -  progresso.get('lixeira_plastico', 0)
+                    self.itens_vidro = 5 -  progresso.get('lixeira_vidro', 0)
+                    self.itens_metal = 5 -  progresso.get('lixeira_metal', 0)
             else: 
                 self.level = 2
                 self.vidas = 5
@@ -358,14 +374,12 @@ class Game:
             self.itens_vidro = 0
             self.itens_metal = 0
     
-        self.width = 640 * 1.5
-        self.heigth = 480 * 1.5
         pygame.display.set_caption("ECO RUNNER")
-        self.screen = pygame.display.set_mode((self.width, self.heigth))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.display = pygame.Surface((320, 240))
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
-        self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
+        self.font = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(16*S))
         
         # ==================== SONS ====================
         self.music = pygame.mixer.music.load("assets/sounds/background.mp3")
@@ -424,8 +438,15 @@ class Game:
         
         self.depurar = False
         
+        self.show_transition_screen('textos/fundos/logo.png', 3)
         if self.level == 0:
-            self.show_transition_screen('textos/logo.png', 3)
+            self.show_transition_screen('textos/fundos/PRE1.png', 3)
+            self.show_transition_screen('textos/fundos/PRE2.png', 3)
+            self.show_transition_screen('textos/fundos/PRE3.png', 4)
+            self.show_transition_screen('textos/fundos/PRE4.png', 3)
+            self.show_transition_screen('textos/fundos/PRE5.png', 3)
+            pass
+
 
         if self.level != 1:
             self.show_transition_screen(f'textos/level/{self.level}.png', 2)
@@ -447,6 +468,7 @@ class Game:
         try:
             transition_img = load_image(image_path)
             transition_img = pygame.transform.scale(transition_img, self.screen.get_size())
+            
             overlay = pygame.Surface(self.screen.get_size())
             overlay.fill((0, 0, 0))
 
@@ -495,7 +517,9 @@ class Game:
         
         if(map_id == 0):
 
+            self.show_transition_screen('textos/fundos/f1-1.png', 6)
             # Carrega recicláveis e lixos do mapa
+
             for loc in list(self.tilemap.tilemap):
                 tile = self.tilemap.tilemap[loc]
                 if tile['type'] == 'reciclavel':
@@ -524,6 +548,7 @@ class Game:
             self.assets['player/anda'] = Animation(load_images('player/guardia_arma/anda'), img_dur=5)
             self.assets['player/parada'] = Animation(load_images('player/guardia_arma/parada'), img_dur=6)
             self.player.set_action('parada')
+            self.show_transition_screen(f'textos/fundos/f3.png', 4)
             from scripts.entities import Yluh
             self.boss = Yluh(self, (250, 130), (50, 60))
 
@@ -558,12 +583,13 @@ class Game:
                 self.show_transition_screen(f'textos/level/{self.level}.png', 2)
                 self.load_level(self.level)
         else:
-             self.show_transition_screen('textos/logo.png', 3)
+             self.show_transition_screen('textos/fundos/logo.png', 3)
              self.level = 0
              self.load_level(self.level)
 
     def start_fase2(self):
         self.show_transition_screen(f'textos/level/1.png', 2)
+        self.show_transition_screen(f'textos/fundos/f2-1.png', 4)
         
         itens_dict = {
             'papel': self.itens_papel,
@@ -575,11 +601,10 @@ class Game:
              itens_dict = {'papel': 5, 'plastico': 5, 'vidro': 5, 'metal': 5}
         
         fase2 = Fase2(self, itens_dict)
-        fase2.run()
+        fase2.run(self)
         
         if self.level == 2:
-             self.show_transition_screen(f'textos/level/2.png', 2)
-             self.load_level(self.level)
+            self.load_level(self.level)
 
     def salvar_progresso_fase_completa(self, level):
         """Salva no banco quando completa a fase."""
@@ -619,7 +644,7 @@ class Game:
         self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
         pygame.display.update()
         pygame.time.delay(1000)
-        self.show_transition_screen('textos/game_over.png', duration=2.0)
+        self.show_transition_screen('textos/game_over.png', 2.0)
         self.load_level(self.level)
 
 
@@ -648,22 +673,22 @@ class Game:
         """Exibe o menu de pausa."""
         frozen_frame = self.screen.copy()
 
-        font_big = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 28)
-        font_med = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 16)
-        font_small = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', 12)
+        font_big = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(28*S))
+        font_med = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(16*S))
+        font_small = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(12*S))
 
-        panel_w, panel_h = 480, 320 
+        panel_w, panel_h = (480 * SX), (320*SY) 
         panel_surf = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
-        panel_rect = panel_surf.get_rect(center=(self.width//2, self.heigth//2))
+        panel_rect = panel_surf.get_rect(center=(WIDTH//2, HEIGHT//2))
 
         def make_button(text, y_pos_absolute):
-            btn_w, btn_h = 360, 38
+            btn_w, btn_h = int(360*SX), int(38*SY)
             btn_surf = pygame.Surface((btn_w, btn_h), pygame.SRCALPHA)
             btn_rect = btn_surf.get_rect(center=(panel_w//2, y_pos_absolute))
             return btn_surf, btn_rect
 
-        btn_resume_surf, btn_resume_rect = make_button("CONTINUAR", 160)
-        btn_quit_surf, btn_quit_rect = make_button("SAIR", 230)
+        btn_resume_surf, btn_resume_rect = make_button("CONTINUAR", int(160*SY))
+        btn_quit_surf, btn_quit_rect = make_button("SAIR", int(230 * SY))
 
         paused = True
         max_fade = 180
@@ -702,10 +727,10 @@ class Game:
             panel_surf.fill((18, 26, 32, 240))
 
             title = font_big.render("PAUSADO", True, (240, 240, 240))
-            panel_surf.blit(title, (panel_w//2 - title.get_width()//2, 20))
+            panel_surf.blit(title, (panel_w//2 - title.get_width()//2, int(20*SY)))
 
             nome_txt = font_med.render(f"Jogador: {self.nickname}", True, (100, 255, 100))
-            panel_surf.blit(nome_txt, (panel_w//2 - nome_txt.get_width()//2, 65))
+            panel_surf.blit(nome_txt, (panel_w//2 - nome_txt.get_width()//2, int(65*SY)))
 
             # informações do menu
             if self.level == 1:
@@ -713,7 +738,7 @@ class Game:
             else: 
                 info_txt = font_small.render(f"Vidas: {self.vidas}  |  Coletados: {self.quantidade_coletada_total}", True, (200, 200, 200))
             
-            panel_surf.blit(info_txt, (panel_w//2 - info_txt.get_width()//2, 90))
+            panel_surf.blit(info_txt, (panel_w//2 - info_txt.get_width()//2, int(90 * SY)))
 
             def draw_button(surf, rect, text, hovered=False):
                 color_bg = (36, 44, 52, 200) if not hovered else (46, 154, 98, 230)
@@ -721,7 +746,7 @@ class Game:
                 b = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
                 b.fill(color_bg)
                 surf.blit(b, rect.topleft)
-                pygame.draw.rect(surf, (255,255,255,20), rect, 1, border_radius=6)
+                pygame.draw.rect(surf, (255,255,255,20), rect, int(1*S), border_radius=int(6*S))
                 t = font_med.render(text, True, (255,255,255))
                 surf.blit(t, (rect.centerx - t.get_width()//2, rect.centery - t.get_height()//2))
 
@@ -775,7 +800,8 @@ class Game:
                             GameDAO.salvar_progresso_fase3(self.user_id, self.vidas, True)
 
                             # MODIFICAR (ir para que tela quando terminar a terceira fase?)
-                            self.show_transition_screen('textos/logo.png', 5)
+                            self.show_transition_screen('textos/fundos/pos1.png', 5)
+                            self.show_transition_screen('textos/fundos/pos2.png', 5)
                             self.boss = None
                             self.level = 0
                             self.load_level(self.level)
@@ -836,6 +862,7 @@ class Game:
             
                 # Verifica se completou a fase
                 if self.quantidade_coletada_total >= self.reciclaveis_por_fase:
+                    self.show_transition_screen('textos/fundos/f1f-1.png', 5)
                     self.next_level()
 
             # Verifica colisões
@@ -881,11 +908,17 @@ class Game:
                 self.draw_text_hud(texto_hud, pos=(10, 10))
             
             # Renderiza vidas
+            vida_size = int(32 * S)   
+            vida_img = pygame.transform.scale(self.assets['vida'], (vida_size, vida_size))
+
             for i in range(self.vidas):
-                self.screen.blit(self.assets['vida'], (10 + i*20, 30))
+                self.screen.blit(
+                    vida_img,
+                    (int(40*SX) + i * int(35*SX), int(35*SY))
+                )
 
             # Mostra nickname 
-            self.draw_text_hud(f"{self.nickname}",pos=(25, self.heigth-40), color=(150, 255, 150))
+            self.draw_text_hud(f"{self.nickname}",pos=(25, HEIGHT-40), color=(150, 255, 150))
 
             pygame.display.update()
             self.clock.tick(60)

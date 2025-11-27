@@ -18,18 +18,19 @@ import pygame
 from scripts.utils import load_images, load_image
 from scripts.tilemap import Tilemap
 
-RENDER_SCALE = 2.0
+RENDER_SCALE = 1.0
+WIDTH, HEIGHT = 640 * 1.5, 480* 1.5
 
 #mapa para editar
-mapa = 'assets/maps/0.json'
+mapa = 'assets/maps/1.json'
 
 class Editor:
     def __init__(self):
         pygame.init()
 
         pygame.display.set_caption('editor')
-        self.screen = pygame.display.set_mode((640, 480))
-        self.display = pygame.Surface((320, 240))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.display = pygame.Surface((WIDTH, HEIGHT))
 
         self.clock = pygame.time.Clock()
         

@@ -1,5 +1,6 @@
 import pygame
 import os
+import time
 
 BASE_IMG_PATH = 'assets/'
 

@@ -210,7 +210,7 @@ class Player(PhysiscsEntitiy):
     def shoot(self):
         if self.game.level == 2:
             if self.shoot_cooldown == 0:
-                self.shoot_cooldown = 60
+                self.shoot_cooldown = 15
                 direction = -1 if self.flip else 1
                 velocity = 5*direction
                 projectile_pos = self.rect().center
@@ -363,7 +363,7 @@ class Yluh(PhysiscsEntitiy):
         dist = math.sqrt(diff_x**2 + diff_y**2)
         
         if dist > 0:
-            speed = 4
+            speed = 2
             vel_x = (diff_x / dist) * speed
             vel_y = (diff_y / dist) * speed
             p = Projectile(self.game, start_pos, (8, 8), [vel_x, vel_y])

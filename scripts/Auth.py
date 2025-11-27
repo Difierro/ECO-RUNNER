@@ -4,10 +4,12 @@ from scripts.utils import load_image
 from game import Game
 from scripts.database.connection import DatabaseConnection
 from scripts.database.user_DAO import UserDAO
+from screeninfo import get_monitors
 
 pygame.init()
-
-WIDTH, HEIGHT = 640 * 1.5, 480* 1.5
+monitor = get_monitors()
+WIDTH = monitor[0].width
+HEIGHT =monitor[0].height
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Eco Runner - Autenticação")
 
@@ -22,6 +24,8 @@ BUTTON_HOVER = (90, 160, 90)
 
 FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(HEIGHT * 0.033))
 SMALL_FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(HEIGHT * 0.027))
+EXTRA_SMALL_FONT = pygame.font.Font('assets/fonts/PressStart2P-Regular.ttf', int(HEIGHT * 0.018))
+
 
 logo = load_image('textos/logo.png')
 logo_scale = WIDTH / 640 * 0.12  
@@ -141,7 +145,11 @@ class AuthScreen:
         title_text = FONT.render(self.title, True, TEXT_COLOR)
         SCREEN.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT * 0.25))
         SCREEN.blit(SMALL_FONT.render("Nickname:", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.395))
+        SCREEN.blit(EXTRA_SMALL_FONT.render("min:3 char", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.435))
+        SCREEN.blit(EXTRA_SMALL_FONT.render("max:12 char", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.465))
         SCREEN.blit(SMALL_FONT.render("Senha:", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.52))
+        SCREEN.blit(EXTRA_SMALL_FONT.render("min:8 char", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.565))
+        SCREEN.blit(EXTRA_SMALL_FONT.render("max:16 char", True, TEXT_COLOR), (WIDTH * 0.19, HEIGHT * 0.595))
 
         for box in self.input_boxes:
             box.draw(SCREEN)
@@ -226,7 +234,7 @@ class RegisterScreen(AuthScreen):
     # usuarios_mock = {"eco_tester": "12345678"}  # simulação local
 
     def __init__(self):
-        super().__init__("Cadastro")
+        super().__init__("CADASTRO")
 
         button_w, button_h = WIDTH * 0.31, HEIGHT * 0.083
         btn_x = WIDTH * 0.34
