@@ -591,14 +591,8 @@ class Game:
         self.show_transition_screen(f'textos/level/1.png', 2)
         self.show_transition_screen(f'textos/fundos/f2-1.png', 4)
         
-        itens_dict = {
-            'papel': self.itens_papel,
-            'plastico': self.itens_plastico,
-            'vidro': self.itens_vidro,
-            'metal': self.itens_metal
-        }
-        if sum(itens_dict.values()) == 0:
-             itens_dict = {'papel': 5, 'plastico': 5, 'vidro': 5, 'metal': 5}
+
+        itens_dict = {'papel': 5, 'plastico': 5, 'vidro': 5, 'metal': 5}
         
         fase2 = Fase2(self, itens_dict)
         fase2.run(self)
