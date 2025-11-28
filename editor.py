@@ -22,7 +22,7 @@ RENDER_SCALE = 1.0
 WIDTH, HEIGHT = 640 * 1.5, 480* 1.5
 
 #mapa para editar
-mapa = 'assets/maps/1.json'
+mapa = 'assets/maps/0.json'
 
 class Editor:
     def __init__(self):

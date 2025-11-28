@@ -3,6 +3,7 @@ from pygame.locals import *
 from sys import exit
 import random
 import os
+import json    
 from scripts.entities import Player, Reciclavel, Lixo
 from scripts.tilemap import Tilemap
 from scripts.utils import load_image, load_images, Animation
@@ -335,11 +336,17 @@ class Game:
         self.itens_plastico = 0
         self.itens_vidro = 0
         self.itens_metal = 0
+        
+        self.collected_ids = set() # Armazena IDs únicos dos itens coletados
 
         if self.usuario_dados:
             self.user_id = usuario_dados.get('id')
             self.nickname = usuario_dados.get('nickname', 'Jogador')
             print(f"Player: {self.nickname} (ID: {self.user_id})")
+            
+            # Carrega o estado local dos itens coletados
+            self.collected_ids = self.load_collected_ids()
+            
             if(not usuario_dados.get('fase1_completa')):
                 progresso = GameDAO.carregar_progresso_fase1(self.user_id)
                 if progresso:
@@ -498,6 +505,46 @@ class Game:
         except:
             pass
 
+    def get_local_save_path(self):
+        """Caminho do arquivo local de itens coletados."""
+        return "collected_items.json"
+
+    def load_collected_ids(self):
+        """Carrega IDs coletados do arquivo local."""
+        if not self.user_id: return set()
+        path = self.get_local_save_path()
+        try:
+            if os.path.exists(path):
+                with open(path, 'r') as f:
+                    data = json.load(f)
+                    # data format: {"user_id": ["id1", "id2"]}
+                    return set(data.get(str(self.user_id), []))
+        except:
+            pass
+        return set()
+
+    def save_collected_id(self, item_id):
+        """Salva um ID coletado no arquivo local."""
+        if not self.user_id or not item_id: return
+        path = self.get_local_save_path()
+        data = {}
+        try:
+            if os.path.exists(path):
+                with open(path, 'r') as f:
+                    data = json.load(f)
+        except:
+            pass
+        
+        u_id = str(self.user_id)
+        if u_id not in data:
+            data[u_id] = []
+        
+        if item_id not in data[u_id]:
+            data[u_id].append(item_id)
+            
+        with open(path, 'w') as f:
+            json.dump(data, f)
+
     def load_level(self, map_id):
         self.boss = None
         """Carrega uma fase do jogo."""
@@ -526,6 +573,17 @@ class Game:
                     pos = [tile['pos'][0]*self.tilemap.tile_size, tile['pos'][1]*self.tilemap.tile_size]
                     rec = Reciclavel(self, pos, (16,16), variant=tile['variant'])
                     rec.tile_data = tile
+                    
+                    # Gera um ID único baseado na posição do item no grid
+                    rec.id = f"{int(tile['pos'][0])}_{int(tile['pos'][1])}"
+                    
+                    # Se o ID já estiver na lista de coletados, marca como coletado e esconde
+                    if rec.id in self.collected_ids:
+                        rec.tile_data['aparece'] = False
+                        rec.collected = True
+                    else:
+                        rec.tile_data['aparece'] = True
+                        
                     self.reciclaveis_totais.append(rec)
                     del self.tilemap.tilemap[loc]
                 elif tile['type'] == 'lixo':
@@ -534,14 +592,6 @@ class Game:
                     lixo = Lixo(self, pos, (16,16), img)
                     self.lixos_totais.append(lixo)
                     del self.tilemap.tilemap[loc]
-            
-            # Define quais recicláveis aparecem nesta fase
-            faltam = max(self.reciclaveis_por_fase - self.quantidade_coletada_total, 0)
-            for rec in self.reciclaveis_totais:
-                rec.tile_data['aparece'] = False
-            if self.reciclaveis_totais:
-                for rec in random.sample(self.reciclaveis_totais, min(faltam, len(self.reciclaveis_totais))):
-                    rec.tile_data['aparece'] = True
         
         elif(map_id == 2):
             self.vidas = 5
@@ -553,11 +603,16 @@ class Game:
             self.boss = Yluh(self, (250, 130), (50, 60))
 
         
-    def coletar_item(self, tipo_item):
+    def coletar_item(self, tipo_item, item_id=None):
         """
         Atualiza contadores locais e salva no banco ao coletar item.
+        Também salva o ID do item localmente para não reaparecer.
         """
         self.quantidade_coletada_total += 1
+        
+        if item_id:
+            self.save_collected_id(item_id)
+            self.collected_ids.add(item_id)
         
         # Atualiza contador específico do tipo
         if tipo_item == 'papel':

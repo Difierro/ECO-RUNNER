@@ -156,7 +156,9 @@ class Player(PhysiscsEntitiy):
                 rec.collect()
                 
                 tipo_item = self._get_tipo_item(rec.variant)
-                game.coletar_item(tipo_item)
+                # Passa o ID do item (atribuído em game.py)
+                item_id = getattr(rec, 'id', None)
+                game.coletar_item(tipo_item, item_id)
                 
                 print(f"Reciclavel {tipo_item} coletado! Total: {game.quantidade_coletada_total}/{game.reciclaveis_por_fase}")
 
@@ -172,7 +174,6 @@ class Player(PhysiscsEntitiy):
             str: Tipo do item ('papel', 'plastico', 'vidro', 'metal')
         """
         # Mapeamento completo para 20 recicláveis (5 de cada tipo)
-        # ⚠️ AJUSTE conforme a ordem dos arquivos em assets/reciclaveis/
         tipos_map = {
             # Papel (5 itens)
             0: 'papel',  1: 'papel',  2: 'papel',  3: 'papel',  4: 'papel',
