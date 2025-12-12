@@ -73,7 +73,10 @@ Os testes planejados para a primeira entrega incluem:
 
 ## 📐 Especificação Formal
 
-Foi desenvolvido um plano de especificação formal em notação Z, cobrindo todos os requisitos funcionais (RF01–RF06).
+A especificação formal dos requisitos foi desenvolvida utilizando duas abordagens complementares para garantir a corretude do sistema:
+
+- **Notação Z:** Utilizada para modelar a estrutura de dados, estados e operações críticas.
+- **Redes de Petri:** Utilizadas para a modelagem de estados dinâmicos e fluxos de transição.
 Os esquemas descrevem:
 
 - Estados e invariantes (vidas do jogador, itens, progresso salvo, vidas de Yluh).
